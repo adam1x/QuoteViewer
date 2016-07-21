@@ -9,15 +9,21 @@ namespace BidMessages
     /// </summary>
     public abstract class QuoteMessage : BidMessage
     {
+		// [Xu Linqiu] 只要是非public的，都应写注释！
+		// [Xu Linqiu] 此成员变量不是子类必须使用的，应改为private
+		// [Xu Linqiu] 此sting[]不是message body，是从body字符串解出来的field集合，应命名为m_fileds
         protected string[] m_body;
 
-        /// <summary>
-        /// This constructor initializes the new <c>QuoteMessage</c> to contain an array of strings representing the various quote information.
-        /// </summary>
-        /// <param name="body">the byte array that contains the body of this <c>QuoteDataMessage</c>.</param>
-        /// <param name="startIndex">the starting index to read the body.</param>
-        /// <param name="count">the number of bytes to read in <c>body</c>.</param>
-        public QuoteMessage(byte[] body, int startIndex, int count)
+		// [Xu Linqiu] 封装！封装！封装！ --- 重要的事情说三遍！！！
+		//             summary注释用来描述方法是干什么用的，不是用来描述怎么干的！用string[]保存字段是你的实现细节，对外部来说不需知道！
+		//             用string[]保存字段这个实现的细节，可以在内部实现的代码里做出说明，但其实也没有必要，这个实现细节不复杂，看得懂代码的，自然就懂。
+		/// <summary>
+		/// This constructor initializes the new <c>QuoteMessage</c> to contain an array of strings representing the various quote information.
+		/// </summary>
+		/// <param name="body">the byte array that contains the body of this <c>QuoteDataMessage</c>.</param>
+		/// <param name="startIndex">the starting index to read the body.</param>
+		/// <param name="count">the number of bytes to read in <c>body</c>.</param>
+		public QuoteMessage(byte[] body, int startIndex, int count)
         {
             string bodyString = textEncoding.GetString(body, startIndex, count);
             m_body = bodyString.Split(',');
@@ -34,65 +40,74 @@ namespace BidMessages
             }
         }
 
+		// [Xu Linqiu] 注释错误！
         /// <value>
         /// Property <c>Function</c> represents the message's function code.
         /// </value>
         public string this[int index]
         {
+			// [Xu Linqiu] 此处应检查index值是否越界
             get { return m_body[index]; }
         }
 
+
+		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
         /// <summary>
         /// This method generates a dictionary from field tags as defined in <c>QuoteFieldTags</c> to indices in <c>m_body</c>.
         /// </summary>
         /// <returns>A dictionary from field tags as defined in <c>QuoteFieldTags</c> to indices in <c>m_body</c>.</returns>
         protected abstract Dictionary<QuoteFieldTags, int> GetTagToIndexMap();
 
-        /// <summary>
-        /// This method gets the index to the string array <c>m_body</c> given a field tag.
-        /// </summary>
-        /// <param name="tag">a field tag as defined in <c>QuoteFieldTags</c>.</param>
-        /// <returns>The index in <c>m_body</c> to get a string encoding of a field.</returns>
-        public int GetIndexFromTag(QuoteFieldTags tag)
+		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
+		/// <summary>
+		/// This method gets the index to the string array <c>m_body</c> given a field tag.
+		/// </summary>
+		/// <param name="tag">a field tag as defined in <c>QuoteFieldTags</c>.</param>
+		/// <returns>The index in <c>m_body</c> to get a string encoding of a field.</returns>
+		public int GetIndexFromTag(QuoteFieldTags tag)
         {
             int result;
             if (GetTagToIndexMap().TryGetValue(tag, out result))
             {
                 return result;
             }
-            else
-            {
-                return -1;
-            }
-        }
+			//else
+			//{
+			//    return -1;
+			//}
+			return -1;
+		}
 
-        #region Read value from byte[]
-        /// <summary>
-        /// This method tries to convert a string found at <c>m_body[index]</c> to an int value.
-        /// </summary>
-        /// <param name="index">the index in <c>m_body</c>.</param>
-        /// <param name="defaultVal">the default value to return if the retrieved string does not represent an int value.</param>
-        /// <returns>The int value parsed from <c>m_body[index]</c> or <c>defaultVal</c> if parsing fails.</returns>
-        public int GetIntValue(int index, int defaultVal = 0)
+		#region Read value from byte[] // [Xu Linqiu] region的说明文字错误
+		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
+		/// <summary>
+		/// This method tries to convert a string found at <c>m_body[index]</c> to an int value.
+		/// </summary>
+		/// <param name="index">the index in <c>m_body</c>.</param>
+		/// <param name="defaultVal">the default value to return if the retrieved string does not represent an int value.</param>
+		/// <returns>The int value parsed from <c>m_body[index]</c> or <c>defaultVal</c> if parsing fails.</returns>
+		public int GetIntValue(int index, int defaultVal = 0)
         {
             int result;
             if (int.TryParse(this[index], out result))
             {
                 return result;
             }
-            else
-            {
-                return defaultVal;
-            }
-        }
+			//else
+			//{
+			//    return defaultVal;
+			//}
+			return defaultVal;
+		}
 
-        /// <summary>
-        /// This method tries to convert a string found at <c>m_body[index]</c> to a uint value.
-        /// </summary>
-        /// <param name="index">the index in <c>m_body</c>.</param>
-        /// <param name="defaultVal">the default value to return if the retrieved string does not represent a uint value.</param>
-        /// <returns>The uint value parsed from <c>m_body[index]</c> or <c>defaultVal</c> if parsing fails.</returns>
-        public uint GetUIntValue(int index, uint defaultVal = 0)
+		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
+		/// <summary>
+		/// This method tries to convert a string found at <c>m_body[index]</c> to a uint value.
+		/// </summary>
+		/// <param name="index">the index in <c>m_body</c>.</param>
+		/// <param name="defaultVal">the default value to return if the retrieved string does not represent a uint value.</param>
+		/// <returns>The uint value parsed from <c>m_body[index]</c> or <c>defaultVal</c> if parsing fails.</returns>
+		public uint GetUIntValue(int index, uint defaultVal = 0)
         {
             uint result;
             if (uint.TryParse(this[index], out result))
@@ -105,13 +120,14 @@ namespace BidMessages
             }
         }
 
-        /// <summary>
-        /// This method tries to convert a string found at <c>m_body[index]</c> to a DateTime value.
-        /// </summary>
-        /// <param name="index">the index in <c>m_body</c>.</param>
-        /// <param name="defaultVal">the default value to return if the retrieved string does not represent a DateTime value.</param>
-        /// <returns>The DateTime value parsed from <c>m_body[index]</c> or <c>defaultVal</c> if parsing fails.</returns>
-        public DateTime GetDateTimeValue(int index, DateTime defaultVal)
+		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
+		/// <summary>
+		/// This method tries to convert a string found at <c>m_body[index]</c> to a DateTime value.
+		/// </summary>
+		/// <param name="index">the index in <c>m_body</c>.</param>
+		/// <param name="defaultVal">the default value to return if the retrieved string does not represent a DateTime value.</param>
+		/// <returns>The DateTime value parsed from <c>m_body[index]</c> or <c>defaultVal</c> if parsing fails.</returns>
+		public DateTime GetDateTimeValue(int index, DateTime defaultVal)
         {
             DateTime result;
             if (DateTime.TryParseExact(this[index], "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
@@ -124,25 +140,27 @@ namespace BidMessages
             }
         }
 
-        /// <summary>
-        /// This method overloads the method: <c>public DateTime GetDateTimeValue(int index, DateTime defaultVal)</c>.
-        /// It tries to convert a string found at <c>m_body[index]</c> to a DateTime value.
-        /// </summary>
-        /// <param name="index">the index in <c>m_body</c>.</param>
-        /// <param name="defaultVal">the default value to return if the retrieved string does not represent a DateTime value.</param>
-        /// <returns>The DateTime value parsed from <c>m_body[index]</c> or <c>DateTime.MinValue</c> if parsing fails.</returns>
-        public DateTime GetDateTimeValue(int index)
+		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
+		/// <summary>
+		/// This method overloads the method: <c>public DateTime GetDateTimeValue(int index, DateTime defaultVal)</c>.
+		/// It tries to convert a string found at <c>m_body[index]</c> to a DateTime value.
+		/// </summary>
+		/// <param name="index">the index in <c>m_body</c>.</param>
+		/// <param name="defaultVal">the default value to return if the retrieved string does not represent a DateTime value.</param>
+		/// <returns>The DateTime value parsed from <c>m_body[index]</c> or <c>DateTime.MinValue</c> if parsing fails.</returns>
+		public DateTime GetDateTimeValue(int index)
         {
             return GetDateTimeValue(index, DateTime.MinValue);
         }
 
-        /// <summary>
-        /// This method tries to convert a string found at <c>m_body[index]</c> to a TimeSpan value.
-        /// </summary>
-        /// <param name="index">the index in <c>m_body</c>.</param>
-        /// <param name="defaultVal">the default value to return if the retrieved string does not represent a TimeSpan value.</param>
-        /// <returns>The TimeSpan value parsed from <c>m_body[index]</c> or <c>defaultVal</c> if parsing fails.</returns>
-        public TimeSpan GetTimeSpanValue(int index, TimeSpan defaultVal)
+		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
+		/// <summary>
+		/// This method tries to convert a string found at <c>m_body[index]</c> to a TimeSpan value.
+		/// </summary>
+		/// <param name="index">the index in <c>m_body</c>.</param>
+		/// <param name="defaultVal">the default value to return if the retrieved string does not represent a TimeSpan value.</param>
+		/// <returns>The TimeSpan value parsed from <c>m_body[index]</c> or <c>defaultVal</c> if parsing fails.</returns>
+		public TimeSpan GetTimeSpanValue(int index, TimeSpan defaultVal)
         {
             TimeSpan result;
             if (TimeSpan.TryParseExact(this[index], "g", CultureInfo.InvariantCulture, out result))
@@ -155,25 +173,27 @@ namespace BidMessages
             }
         }
 
-        /// <summary>
-        /// This method overloads the method: <c>public TimeSpan GetTimeSpanValue(int index, TimeSpan defaultVal)</c>.
-        /// It tries to convert a string found at <c>m_body[index]</c> to a TimeSpan value.
-        /// </summary>
-        /// <param name="index">the index in <c>m_body</c>.</param>
-        /// <param name="defaultVal">the default value to return if the retrieved string does not represent a TimeSpan value.</param>
-        /// <returns>The TimeSpan value parsed from <c>m_body[index]</c> or <c>TimeSpan.Zero</c> if parsing fails.</returns>
-        public TimeSpan GetTimeSpanValue(int index)
+		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
+		/// <summary>
+		/// This method overloads the method: <c>public TimeSpan GetTimeSpanValue(int index, TimeSpan defaultVal)</c>.
+		/// It tries to convert a string found at <c>m_body[index]</c> to a TimeSpan value.
+		/// </summary>
+		/// <param name="index">the index in <c>m_body</c>.</param>
+		/// <param name="defaultVal">the default value to return if the retrieved string does not represent a TimeSpan value.</param>
+		/// <returns>The TimeSpan value parsed from <c>m_body[index]</c> or <c>TimeSpan.Zero</c> if parsing fails.</returns>
+		public TimeSpan GetTimeSpanValue(int index)
         {
             return GetTimeSpanValue(index, TimeSpan.Zero);
         }
 
-        /// <summary>
-        /// This method tries to convert a string found at <c>m_body[index]</c> to a string value.
-        /// </summary>
-        /// <param name="index">the index in <c>m_body</c>.</param>
-        /// <param name="defaultVal">the default value to return if the retrieved string does not represent a string value.</param>
-        /// <returns>The string value parsed from <c>m_body[index]</c> or <c>defaultVal</c> if parsing fails.</returns>
-        public string GetStringValue(int index, string defaultVal)
+		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
+		/// <summary>
+		/// This method tries to convert a string found at <c>m_body[index]</c> to a string value.
+		/// </summary>
+		/// <param name="index">the index in <c>m_body</c>.</param>
+		/// <param name="defaultVal">the default value to return if the retrieved string does not represent a string value.</param>
+		/// <returns>The string value parsed from <c>m_body[index]</c> or <c>defaultVal</c> if parsing fails.</returns>
+		public string GetStringValue(int index, string defaultVal)
         {
             if (index < 0 || index >= m_body.Length)
             {
@@ -182,38 +202,42 @@ namespace BidMessages
             return this[index];
         }
 
-        /// <summary>
-        /// This method overloads the method: <c>public string GetStringValue(int index, string defaultVal)</c>.
-        /// It tries to convert a string found at <c>m_body[index]</c> to a string value.
-        /// </summary>
-        /// <param name="index">the index in <c>m_body</c>.</param>
-        /// <param name="defaultVal">the default value to return if the retrieved string does not represent a string value.</param>
-        /// <returns>The string value parsed from <c>m_body[index]</c> or <c>string.Empty</c> if parsing fails.</returns>
-        public string GetStringValue(int index)
+		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
+		/// <summary>
+		/// This method overloads the method: <c>public string GetStringValue(int index, string defaultVal)</c>.
+		/// It tries to convert a string found at <c>m_body[index]</c> to a string value.
+		/// </summary>
+		/// <param name="index">the index in <c>m_body</c>.</param>
+		/// <param name="defaultVal">the default value to return if the retrieved string does not represent a string value.</param>
+		/// <returns>The string value parsed from <c>m_body[index]</c> or <c>string.Empty</c> if parsing fails.</returns>
+		public string GetStringValue(int index)
         {
             return GetStringValue(index, string.Empty);
         }
 
-        /// <summary>
-        /// This method extracts an <c>AuctionSessions</c> value out of <c>m_body</c>.
-        /// </summary>
-        /// <returns>The <c>AuctionSessions</c> value extracted from <c>m_body</c>.</returns>
-        public AuctionSessions GetAuctionSessionsValue()
+		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
+		/// <summary>
+		/// This method extracts an <c>AuctionSessions</c> value out of <c>m_body</c>.
+		/// </summary>
+		/// <returns>The <c>AuctionSessions</c> value extracted from <c>m_body</c>.</returns>
+		public AuctionSessions GetAuctionSessionsValue()
         {
             return (AuctionSessions)this[GetIndexFromTag(QuoteFieldTags.AuctionSession)][0];
         }
-        #endregion
+		#endregion
 
-        /// <summary>
-        /// This method retrieves the <c>AuctionSessoins</c> value from a <c>QuoteMessage</c>'s byte array representaion.
-        /// </summary>
-        /// <param name="body">the byte array representing a <c>QuoteMessage</c>.</param>
-        /// <param name="startIndex">the starting index in <c>body</c> for the quote message.</param>
-        /// <returns>The session this <c>QuoteMessage</c> object.</returns>
-        public static AuctionSessions PeekSession(byte[] body, int startIndex)
+		/// <summary>
+		/// This method retrieves the <c>AuctionSessoins</c> value from a <c>QuoteMessage</c>'s byte array representaion.
+		/// </summary>
+		/// <param name="body">the byte array representing a <c>QuoteMessage</c>.</param>
+		/// <param name="startIndex">the starting index in <c>body</c> for the quote message.</param>
+		/// <returns>The session this <c>QuoteMessage</c> object.</returns>
+		public static AuctionSessions PeekSession(byte[] body, int startIndex)
         {
             string s = textEncoding.GetString(body, startIndex + 14, 3);
-            switch (s)
+
+			// [Xu Linqiu] switch的每个分支间应插入空行
+			switch (s)
             {
                 case ",A,":
                     return AuctionSessions.SessionA;
@@ -232,7 +256,7 @@ namespace BidMessages
                 case ",H,":
                     return AuctionSessions.SessionH;
                 default:
-                    throw new NotSupportedException("Unsuppoted message session.");
+                    throw new NotSupportedException("Unsuppoted auction session.");
             }
         }
 
@@ -248,6 +272,7 @@ namespace BidMessages
         }
 
         #region Message Comparison
+		// [Xu Linqiu] 注释文字错误，class不能compare，object才可以。
         /// <summary>
         /// This method compares two <c>QuoteMessage</c>s.
         /// </summary>
@@ -400,46 +425,50 @@ namespace BidMessages
             return base.GetHashCode();
         }
 
-        /// <summary>
-        /// This method defines a short hand to check whether one <c>QuoteMessage</c> is greater than another.
-        /// </summary>
-        /// <param name="m1">the first <c>QuoteMessage</c> object.</param>
-        /// <param name="m2">the second <c>QuoteMessage</c> object.</param>
-        /// <returns>True if m1 > m2, false otherwise.</returns>
-        public static bool operator >(QuoteMessage m1, QuoteMessage m2)
+		// [Xu Linqiu] 注释文字错误，class不能compare，object才可以。
+		/// <summary>
+		/// This method defines a short hand to check whether one <c>QuoteMessage</c> is greater than another.
+		/// </summary>
+		/// <param name="m1">the first <c>QuoteMessage</c> object.</param>
+		/// <param name="m2">the second <c>QuoteMessage</c> object.</param>
+		/// <returns>True if m1 > m2, false otherwise.</returns>
+		public static bool operator >(QuoteMessage m1, QuoteMessage m2)
         {
             return Compare(m1, m2) > 0;
         }
 
-        /// <summary>
-        /// This method defines a short hand to check whether one <c>QuoteMessage</c> is smaller than another.
-        /// </summary>
-        /// <param name="m1">the first <c>QuoteMessage</c> object.</param>
-        /// <param name="m2">the second <c>QuoteMessage</c> object.</param>
-        /// <returns>True if m1 &lt; m2, false otherwise.</returns>
-        public static bool operator <(QuoteMessage m1, QuoteMessage m2)
+		// [Xu Linqiu] 注释文字错误，class不能compare，object才可以。
+		/// <summary>
+		/// This method defines a short hand to check whether one <c>QuoteMessage</c> is smaller than another.
+		/// </summary>
+		/// <param name="m1">the first <c>QuoteMessage</c> object.</param>
+		/// <param name="m2">the second <c>QuoteMessage</c> object.</param>
+		/// <returns>True if m1 &lt; m2, false otherwise.</returns>
+		public static bool operator <(QuoteMessage m1, QuoteMessage m2)
         {
             return Compare(m1, m2) < 0;
         }
 
-        /// <summary>
-        /// This method defines a short hand to check whether two <c>QuoteMessage</c>s are equal.
-        /// </summary>
-        /// <param name="m1">the first <c>QuoteMessage</c> object.</param>
-        /// <param name="m2">the second <c>QuoteMessage</c> object.</param>
-        /// <returns>True if m1 == m2, false otherwise.</returns>
-        public static bool operator ==(QuoteMessage m1, QuoteMessage m2)
+		// [Xu Linqiu] 注释文字错误，class不能compare，object才可以。
+		/// <summary>
+		/// This method defines a short hand to check whether two <c>QuoteMessage</c>s are equal.
+		/// </summary>
+		/// <param name="m1">the first <c>QuoteMessage</c> object.</param>
+		/// <param name="m2">the second <c>QuoteMessage</c> object.</param>
+		/// <returns>True if m1 == m2, false otherwise.</returns>
+		public static bool operator ==(QuoteMessage m1, QuoteMessage m2)
         {
             return Compare(m1, m2) == 0;
         }
 
-        /// <summary>
-        /// This method defines a short hand to check whether two <c>QuoteMessage</c>s are not equal.
-        /// </summary>
-        /// <param name="m1">the first <c>QuoteMessage</c> object.</param>
-        /// <param name="m2">the second <c>QuoteMessage</c> object.</param>
-        /// <returns>True if m1 != m2, false otherwise.</returns>
-        public static bool operator !=(QuoteMessage m1, QuoteMessage m2)
+		// [Xu Linqiu] 注释文字错误，class不能compare，object才可以。
+		/// <summary>
+		/// This method defines a short hand to check whether two <c>QuoteMessage</c>s are not equal.
+		/// </summary>
+		/// <param name="m1">the first <c>QuoteMessage</c> object.</param>
+		/// <param name="m2">the second <c>QuoteMessage</c> object.</param>
+		/// <returns>True if m1 != m2, false otherwise.</returns>
+		public static bool operator !=(QuoteMessage m1, QuoteMessage m2)
         {
             return Compare(m1, m2) != 0;
         }

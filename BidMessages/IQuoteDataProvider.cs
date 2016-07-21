@@ -5,6 +5,8 @@
     /// </summary>
     internal interface IQuoteDataProvider
     {
+		// [Xu Linqiu] 以下两个方法的参数subscriber的命名，应按其类型命名为listener，这样更为直观
+
         /// <summary>
         /// This method, once implemented, defines how to subscribe a <c>IQuoteDataListener</c>.
         /// </summary>

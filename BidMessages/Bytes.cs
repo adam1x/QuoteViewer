@@ -3,6 +3,8 @@ using System.Net;
 
 namespace BidMessages
 {
+	// [Xu Linqiu] Bytes类是此项目内部使用的静态辅助类，一般先定义为internal，而不是public。
+
     /// <summary>
     /// Class <c>Bytes</c> encapsulates helper methods related to byte arrays.
     /// </summary>

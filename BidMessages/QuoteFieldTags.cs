@@ -5,10 +5,12 @@
     /// </summary>
     public enum QuoteFieldTags
     {
-        /// <summary>
-        /// Indicates a reserved undefined value.
-        /// </summary>
-        Undefined,
+		// [Xu Linqiu] 各个枚举值定义代码之间应插入空行。
+
+		/// <summary>
+		/// Indicates a reserved undefined value.
+		/// </summary>
+		Undefined,
         /// <summary>
         /// Indicates that the field represents update timestamp.
         /// </summary>

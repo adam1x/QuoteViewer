@@ -5,10 +5,12 @@
     /// </summary>
     public enum FunctionCodes : ushort
     {
-        /// <summary>
-        /// Indicates a reserved undefined value.
-        /// </summary>
-        Undefined = 0xffff,
+		// [Xu Linqiu] 各个枚举值定义代码之间应插入空行。
+
+		/// <summary>
+		/// Indicates a reserved undefined value.
+		/// </summary>
+		Undefined = 0xffff,
         /// <summary>
         /// Indicates that the message is a quote message.
         /// </summary>
