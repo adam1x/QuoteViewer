@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="BidMessages.BidMessage" Collapsed="true">
+    <Position X="14" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAACAAAAAAAAECAAAAAIAAAAAAkAAAAAAAAAAAAA=</HashCode>
+      <FileName>BidMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.Bytes" Collapsed="true">
+    <Position X="30" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACACAAAAAgAAAAAAAAAAAAAAAAAAAAgAAAAAgAAAAA=</HashCode>
+      <FileName>Bytes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.ControlMessage" Collapsed="true">
+    <Position X="23" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ControlMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.ControlReplyMessage" Collapsed="true">
+    <Position X="19.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ControlReplyMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.ControlRequestMessage" Collapsed="true">
+    <Position X="25.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ControlRequestMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.HeartbeatMsg" Collapsed="true">
+    <Position X="23" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAAAAAAAAABAIAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>HeartbeatMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.LoginReplyMsg" Collapsed="true">
+    <Position X="20.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAAAAAEAAAAAJAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>LoginReplyMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.LoginRequestMsg" Collapsed="true">
+    <Position X="27.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EEAAABAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>LoginRequestMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.QuoteDataMessage" Collapsed="true">
+    <Position X="1.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>QuoteDataMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.QuoteMessage" Collapsed="true">
+    <Position X="8.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAQAAAABAAAAAiUCAAgIAAgAABIAgABBAAAAAAqA=</HashCode>
+      <FileName>QuoteMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.QuoteTextMessage" Collapsed="true">
+    <Position X="10.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>QuoteTextMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.SessionAMsg" Collapsed="true">
+    <Position X="0.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>SessionAMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.SessionBMsg" Collapsed="true">
+    <Position X="2.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>SessionBMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.SessionCEFHMsg" Collapsed="true">
+    <Position X="8.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>SessionCEFHMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.SessionCMsg" Collapsed="true">
+    <Position X="5" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SessionCMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.SessionDGMsg" Collapsed="true">
+    <Position X="15.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>SessionDGMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.SessionDMsg" Collapsed="true">
+    <Position X="16.25" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SessionDMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.SessionEMsg" Collapsed="true">
+    <Position X="9.5" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SessionEMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.SessionFMsg" Collapsed="true">
+    <Position X="11.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SessionFMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.SessionGMsg" Collapsed="true">
+    <Position X="14" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SessionGMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.SessionHMsg" Collapsed="true">
+    <Position X="7.25" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SessionHMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.SessionKeyReplyMsg" Collapsed="true">
+    <Position X="18.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAEAAAAAQAAAAAAIAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SessionKeyReplyMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BidMessages.SessionKeyRequestMsg" Collapsed="true">
+    <Position X="25.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAAAAAAQAABAIAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SessionKeyRequestMsg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="BidMessages.IQuoteDataListener" Collapsed="true">
+    <Position X="30" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IQuoteDataListener.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="BidMessages.IQuoteDataProvider" Collapsed="true">
+    <Position X="31.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>IQuoteDataProvider.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="BidMessages.AuctionSessions" Collapsed="true">
+    <Position X="30" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAAAAAAAAAAAAAAAAgEAAAAEAgCAAAAAAQAACA=</HashCode>
+      <FileName>AuctionSessions.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="BidMessages.FunctionCodes" Collapsed="true">
+    <Position X="31.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAIAABAAAAAAABAgAAAAAAAAQAAAAAAACA=</HashCode>
+      <FileName>FunctionCodes.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="BidMessages.QuoteFieldTags" Collapsed="true">
+    <Position X="30" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAQAAACABCgAEgEAAIAICFCACAAIACABECAQAAAAgCA=</HashCode>
+      <FileName>QuoteFieldTags.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

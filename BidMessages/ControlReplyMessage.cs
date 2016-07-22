@@ -5,10 +5,11 @@
     /// </summary>
     public abstract class ControlReplyMessage : ControlMessage
     {
-        /// <summary>
-        /// This constructor doesn't do anything specific.
-        /// </summary>
-        public ControlReplyMessage()
+		// [Xu Linqiu] 绝对不应出现这样的注释！ctor的实现是你的内部细节，你怎么做都行，但就是不能公开出来。
+		/// <summary>
+		/// This constructor doesn't do anything specific.
+		/// </summary>
+		public ControlReplyMessage()
         {
         }
 
@@ -24,6 +25,8 @@
             return sizeof(uint);
         }
         
+		// [Xu Linqiu] 此方法定义不当，缺乏弹性，目前只是Control reply message的两个子类恰好它们的body都是一个UInt32而已
+		//             此现象只是巧合，不是protocol中的明确规定，未来当出现新的reply子类时，并不一定还是UInt32值。
         /// <summary>
         /// This method returns the uint value that is the body of a <c>ControlReplyMessage</c> object.
         /// </summary>

@@ -5,10 +5,12 @@
     /// </summary>
     public enum AuctionSessions
     {
-        /// <summary>
-        /// Indicates a reserved undefined value.
-        /// </summary>
-        Undefined = 0,
+		// [Xu Linqiu] 各个枚举值定义代码之间应插入空行。
+
+		/// <summary>
+		/// Indicates a reserved undefined value.
+		/// </summary>
+		Undefined = 0,
         /// <summary>
         /// Indicates session A.
         /// </summary>

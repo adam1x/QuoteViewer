@@ -3,6 +3,8 @@ using System.Net;
 
 namespace BidMessages
 {
+	// [Xu Linqiu] Bytes类是此项目内部使用的静态辅助类，一般先定义为internal，而不是public。
+
     /// <summary>
     /// Class <c>Bytes</c> encapsulates helper methods related to byte arrays.
     /// </summary>
@@ -13,7 +15,7 @@ namespace BidMessages
         /// </summary>
         /// <param name="bytes">the source array.</param>
         /// <param name="startIndex">the starting index in <c>bytes</c>.</param>
-        /// <returns>A uint value encoded in <c>bytes</c>.</returns>
+		/// <returns>A uint value encoded in <c>bytes</c>.</returns>
         public static uint ToUInt32(this byte[] bytes, int startIndex)
         {
             return NetworkToHostOrder(BitConverter.ToUInt32(bytes, startIndex));
