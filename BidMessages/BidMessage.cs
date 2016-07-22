@@ -34,6 +34,7 @@ namespace BidMessages
         /// <param name="startIndex">the start index in the byte array.</param>
         /// <param name="count">the actual length of body.</param>
         /// <returns>An initialized <c>BidMessage</c> object.</returns>
+		/// <exception cref="System.NotImplementedException"></exception>
         public static BidMessage Create(FunctionCodes function, byte[] body, int startIndex, int count)
         {
             BidMessage msg = null;

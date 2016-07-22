@@ -5,6 +5,11 @@
     /// </summary>
     public interface IQuoteDataListener
     {
+		/// <summary>
+		/// 
+		/// </summary>
+		string ListenerName { get; }
+
 		// [Xu Linqiu] Parsed - 用词不准确，本接口是被IQuoteDataProvider接口的实现者调用，
 		//             IQuoteDataProvider不是IQuoteDataParser，一般此处使用的方法名为：
 		//             OnQuoteMessageReceived or OnQuoteMessageArrived

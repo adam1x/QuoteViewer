@@ -79,6 +79,13 @@ namespace BidMessages
 		}
 
 		#region Read value from byte[] // [Xu Linqiu] region的说明文字错误
+
+		// [Xu Linqiu] 以下方法中参数defaultVal，应为defaultValue
+		// [Xu Linqiu] 以下方法中方法名为GetIntValue/GetUIntValue的，应改为GetInt32Value/GetUInt32Value，因为还有Int64/UInt64
+
+		// [Xu Linqiu] 以下方法中方法名为GetIntValue的，改为GetFieldValueAsInt32更合适，因为这些Get方法是获取字段值，不是获取QuoteMessage对象的值
+		//             其它Get方法的名称参照此格式修改。
+
 		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
 		/// <summary>
 		/// This method tries to convert a string found at <c>m_body[index]</c> to an int value.
@@ -114,11 +121,12 @@ namespace BidMessages
             {
                 return result;
             }
-            else
-            {
-                return defaultVal;
-            }
-        }
+			//else
+			//{
+			//    return defaultVal;
+			//}
+			return defaultVal;
+		}
 
 		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
 		/// <summary>
@@ -134,11 +142,12 @@ namespace BidMessages
             {
                 return result;
             }
-            else
-            {
-                return defaultVal;
-            }
-        }
+			//else
+			//{
+			//    return defaultVal;
+			//}
+			return defaultVal;
+		}
 
 		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
 		/// <summary>
@@ -167,11 +176,12 @@ namespace BidMessages
             {
                 return result;
             }
-            else
-            {
-                return defaultVal;
-            }
-        }
+			//else
+			//{
+			//    return defaultVal;
+			//}
+			return defaultVal;
+		}
 
 		// [Xu Linqiu] 注释里不应暴露实现细节 - m_body
 		/// <summary>
@@ -380,7 +390,9 @@ namespace BidMessages
         /// <returns>A value greater than 0 if s1 > s2, 0 if s1 == s2, and a value smaller than 1 if s1 &lt; s2.</returns>
         public static int CompareSession(AuctionSessions s1, AuctionSessions s2)
         {
-            Dictionary<AuctionSessions, int> dict = new Dictionary<AuctionSessions, int>
+			// [Xu Linqiu] 每次比较auction session值，都要生成一边这个dict，合理吗？
+			//             使用Dictionary来保存session对应的值，合理吗？
+			Dictionary<AuctionSessions, int> dict = new Dictionary<AuctionSessions, int>
             {
                 { AuctionSessions.SessionC, 0 },
                 { AuctionSessions.SessionA, 1 },
@@ -392,7 +404,7 @@ namespace BidMessages
                 { AuctionSessions.SessionH, 4 },
             };
 
-            return dict[s1] - dict[s2];
+            return (dict[s1] - dict[s2]);
         }
 
         /// <summary>
@@ -413,7 +425,7 @@ namespace BidMessages
                 return false;
             }
 
-            return Compare(this, msg) == 0;
+            return (Compare(this, msg) == 0);
         }
 
         /// <summary>
@@ -434,7 +446,7 @@ namespace BidMessages
 		/// <returns>True if m1 > m2, false otherwise.</returns>
 		public static bool operator >(QuoteMessage m1, QuoteMessage m2)
         {
-            return Compare(m1, m2) > 0;
+            return (Compare(m1, m2) > 0);
         }
 
 		// [Xu Linqiu] 注释文字错误，class不能compare，object才可以。
@@ -446,7 +458,7 @@ namespace BidMessages
 		/// <returns>True if m1 &lt; m2, false otherwise.</returns>
 		public static bool operator <(QuoteMessage m1, QuoteMessage m2)
         {
-            return Compare(m1, m2) < 0;
+            return (Compare(m1, m2) < 0);
         }
 
 		// [Xu Linqiu] 注释文字错误，class不能compare，object才可以。
@@ -458,7 +470,7 @@ namespace BidMessages
 		/// <returns>True if m1 == m2, false otherwise.</returns>
 		public static bool operator ==(QuoteMessage m1, QuoteMessage m2)
         {
-            return Compare(m1, m2) == 0;
+            return (Compare(m1, m2) == 0);
         }
 
 		// [Xu Linqiu] 注释文字错误，class不能compare，object才可以。
@@ -470,7 +482,7 @@ namespace BidMessages
 		/// <returns>True if m1 != m2, false otherwise.</returns>
 		public static bool operator !=(QuoteMessage m1, QuoteMessage m2)
         {
-            return Compare(m1, m2) != 0;
+            return (Compare(m1, m2) != 0);
         }
         #endregion
     }
