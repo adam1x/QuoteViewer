@@ -6,7 +6,7 @@
     public abstract class ControlMessage : BidMessage
     {
         /// <summary>
-        /// This contructor doesn't do anything specific.
+        /// This constructor initializes a new instance of the <c>ControlMessage</c> class.
         /// </summary>
         public ControlMessage()
         {

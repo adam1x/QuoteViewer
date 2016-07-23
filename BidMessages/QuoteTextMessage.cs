@@ -6,14 +6,25 @@
     public abstract class QuoteTextMessage : QuoteMessage
     {
         /// <summary>
-        /// This constructor calls the base class <c>QuoteMessage</c>'s constructor.
+        /// This constructor initializes a new instance of the <c>QuoteTextMessage</c> class with the given byte array, start index, and number of bytes.
         /// </summary>
-        /// <param name="body">the byte array that contains the body of this <c>QuoteDataMessage</c>.</param>
-        /// <param name="startIndex">the starting index to read the body.</param>
-        /// <param name="count">the number of bytes to read in <c>body</c>.</param>
-        public QuoteTextMessage(byte[] body, int startIndex, int count)
-            : base(body, startIndex, count)
+        /// <param name="message">the byte array that contains this <c>QuoteTextMessage</c>.</param>
+        /// <param name="startIndex">the starting index.</param>
+        /// <param name="count">the length of this message in bytes.</param>
+        public QuoteTextMessage(byte[] message, int startIndex, int count)
+            : base(message, startIndex, count)
         {
+        }
+
+        /// <value>
+        /// Property <c>ContentText</c> represents the message's content text.
+        /// </value>
+        public string ContentText
+        {
+            get
+            {
+                return GetFieldValueAsString(GetIndexFromTag(QuoteFieldTags.ContentText));
+            }
         }
     }
 }

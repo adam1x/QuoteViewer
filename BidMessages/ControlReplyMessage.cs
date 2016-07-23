@@ -6,28 +6,20 @@
     public abstract class ControlReplyMessage : ControlMessage
     {
         /// <summary>
-        /// This constructor doesn't do anything specific.
+        /// This constructor initializes a new instance of the <c>ControlReplyMessage</c> class.
         /// </summary>
         public ControlReplyMessage()
         {
         }
 
         /// <summary>
-        /// This method encodes the body of a <c>BidMessage</c> object into the target byte array.
+        /// This method peeks at a message's function code.
         /// </summary>
-        /// <param name="bytes">the target byte array.</param>
-        /// <returns>The number of bytes written into <c>bytes</c>.</returns>
-        protected override uint WriteBody(byte[] bytes)
+        /// <param name="message">the message in a byte array.</param>
+        /// <returns>the message's function code.</returns>
+        protected static FunctionCodes PeekFunctionCode(byte[] message)
         {
-            uint body = GetBody();
-            body.GetBytes(bytes, HeaderLength);
-            return sizeof(uint);
+            return (FunctionCodes)message.ToUInt16(sizeof(uint));
         }
-        
-        /// <summary>
-        /// This method returns the uint value that is the body of a <c>ControlReplyMessage</c> object.
-        /// </summary>
-        /// <returns>A uint value representing the body.</returns>
-        protected abstract uint GetBody();
     }
 }

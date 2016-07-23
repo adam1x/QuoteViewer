@@ -4,15 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9D9E4960-B784-45A1-A7E3-B5C76708D8A3}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{D9CA1789-5255-4FF6-BF50-68EFB6D96ED5}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BidMessage</RootNamespace>
-    <AssemblyName>BidMessage</AssemblyName>
+    <RootNamespace>ConsoleViewer</RootNamespace>
+    <AssemblyName>ConsoleViewer</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -37,36 +40,22 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AuctionSessions.cs" />
-    <Compile Include="BidMessage.cs" />
-    <Compile Include="Bytes.cs" />
-    <Compile Include="ControlMessage.cs" />
-    <Compile Include="ControlReplyMessage.cs" />
-    <Compile Include="ControlRequestMessage.cs" />
-    <Compile Include="HeartbeatMessage.cs" />
-    <Compile Include="LoginReplyMessage.cs" />
-    <Compile Include="LoginRequestMessage.cs" />
-    <Compile Include="FunctionCodes.cs" />
+    <Compile Include="Viewer.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QuoteDataMessage.cs" />
-    <Compile Include="QuoteFieldTags.cs" />
-    <Compile Include="QuoteMessage.cs" />
-    <Compile Include="QuoteTextMessage.cs" />
-    <Compile Include="SessionAMessage.cs" />
-    <Compile Include="SessionBMessage.cs" />
-    <Compile Include="SessionCEFHMessage.cs" />
-    <Compile Include="SessionCMessage.cs" />
-    <Compile Include="SessionDGMessage.cs" />
-    <Compile Include="SessionDMessage.cs" />
-    <Compile Include="SessionEMessage.cs" />
-    <Compile Include="SessionFMessage.cs" />
-    <Compile Include="SessionGMessage.cs" />
-    <Compile Include="SessionHMessage.cs" />
-    <Compile Include="SessionKeyReplyMessage.cs" />
-    <Compile Include="SessionKeyRequestMessage.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BidMessages\BidMessages.csproj">
+      <Project>{9d9e4960-b784-45a1-a7e3-b5c76708d8a3}</Project>
+      <Name>BidMessages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataProviders\QuoteProviders.csproj">
+      <Project>{c8e2e951-d2ed-4ffe-9752-3dfa62c6f086}</Project>
+      <Name>QuoteProviders</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
