@@ -46,6 +46,7 @@
     <Compile Include="QuoteDataProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuoteProviderStatus.cs" />
+    <Compile Include="StatusChangedEventArgs.cs" />
     <Compile Include="TcpQuoteProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

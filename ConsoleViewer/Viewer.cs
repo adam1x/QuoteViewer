@@ -67,6 +67,7 @@ namespace ConsoleViewer
 
                 if (parser != null)
                 {
+                    parser.StatusChanged += parser_StatusChanged;
                     break;
                 }
             }
@@ -169,23 +170,25 @@ namespace ConsoleViewer
         }
 
         /// <summary>
-        /// This method prints out notifications based on status change.
+        /// This method is an event handler for status change. It prints out notifications.
         /// </summary>
-        /// <param name="previous">the previous state.</param>
-        /// <param name="current">the current state.</param>
-        public void OnStatusChanged(QuoteProviderStatus previous, QuoteProviderStatus current)
+        /// <param name="ev">the event args that contains the data of this event.</param>
+        public void parser_StatusChanged(object sender, StatusChangedEventArgs ev)
         {
-            if (previous == QuoteProviderStatus.TcpConnect && current == QuoteProviderStatus.TcpAuthenticate)
+            QuoteProviderStatus previous = ev.Previous;
+            QuoteProviderStatus next = ev.Next;
+
+            if (previous != QuoteProviderStatus.Undefined && next == QuoteProviderStatus.TcpCreate)
+            {
+                Console.WriteLine("Attempting reconnection...");
+            }
+            else if (previous == QuoteProviderStatus.TcpConnect && next == QuoteProviderStatus.TcpAuthenticate)
             {
                 Console.WriteLine("Connected to remote host.");
             }
-            else if (previous == QuoteProviderStatus.TcpAuthenticate && current == QuoteProviderStatus.TcpInitReceive)
+            else if (previous == QuoteProviderStatus.TcpAuthenticate && next == QuoteProviderStatus.TcpInitReceive)
             {
                 Console.WriteLine("Successfully logged in.\n");
-            }
-            else if (current == QuoteProviderStatus.TcpCreate)
-            {
-                Console.WriteLine("Attempting reconnection...");
             }
         }
 

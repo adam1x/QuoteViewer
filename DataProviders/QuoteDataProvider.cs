@@ -15,8 +15,24 @@ namespace QuoteProviders
         /// </summary>
         public delegate void State();
 
+        /// <summary>
+        /// This event is triggered when the provider changes status.
+        /// </summary>
+        public event EventHandler<StatusChangedEventArgs> StatusChanged;
+
+        /// <summary>
+        /// This field represents the state the provider is in.
+        /// </summary>
         protected State m_state;
+
+        /// <summary>
+        /// This field represents the provider's status.
+        /// </summary>
         protected QuoteProviderStatus m_status;
+
+        /// <summary>
+        /// This field represents a list of subscribers/listeners to this provider.
+        /// </summary>
         protected List<IQuoteDataListener> m_listeners;
 
         /// <summary>
@@ -31,7 +47,27 @@ namespace QuoteProviders
         /// </value>
         public State CurrentState
         {
-            get { return m_state; }
+            get
+            {
+                return m_state;
+            }
+        }
+
+        /// <value>
+        /// Property <c>Status</c> represents a particular parser's status.
+        /// Setting a new status triggers a status changed event.
+        /// </value>
+        public QuoteProviderStatus Status
+        {
+            get
+            {
+                return m_status;
+            }
+            protected set
+            {
+                OnStatusChanged(new StatusChangedEventArgs(m_status, value));
+                m_status = value;
+            }
         }
 
         /// <value>
@@ -86,24 +122,24 @@ namespace QuoteProviders
             }
         }
 
-        /// <summary>
-        /// This method notifies all listeners that the provider has had a status change.
-        /// </summary>
-        /// <param name="previous">the previous state.</param>
-        /// <param name="current">the current state.</param>
-        protected void OnStatusChanged(QuoteProviderStatus previous, QuoteProviderStatus current)
-        {
-            foreach (IQuoteDataListener listener in m_listeners)
-            {
-                try
-                {
-                    listener.OnStatusChanged(previous, current);
-                }
-                catch
-                {
-                }
-            }
-        }
+        ///// <summary>
+        ///// This method notifies all listeners that the provider has had a status change.
+        ///// </summary>
+        ///// <param name="previous">the previous state.</param>
+        ///// <param name="current">the current state.</param>
+        //protected void OnStatusChanged(QuoteProviderStatus previous, QuoteProviderStatus current)
+        //{
+        //    foreach (IQuoteDataListener listener in m_listeners)
+        //    {
+        //        try
+        //        {
+        //            listener.OnStatusChanged(previous, current);
+        //        }
+        //        catch
+        //        {
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// This method notifies all listeners that an error has occurred.
@@ -121,6 +157,19 @@ namespace QuoteProviders
                 catch
                 {
                 }
+            }
+        }
+
+        /// <summary>
+        /// This method notifies all event handlers to consume the raised event.
+        /// </summary>
+        /// <param name="ev">the raised event.</param>
+        protected virtual void OnStatusChanged(StatusChangedEventArgs ev)
+        {
+            EventHandler<StatusChangedEventArgs> handler = StatusChanged;
+            if (handler != null)
+            {
+                handler(this, ev);
             }
         }
     }

@@ -25,6 +25,7 @@ namespace QuoteProviders
             m_filePath = filePath;
             m_listeners = new List<IQuoteDataListener>();
             m_state = Open;
+            m_status = QuoteProviderStatus.Undefined;
         }
 
         /// <value>
@@ -50,6 +51,8 @@ namespace QuoteProviders
         /// </summary>
         private void Open()
         {
+            Status = QuoteProviderStatus.LocalOpen;
+
             try
             {
                 m_fs = new FileStream(m_filePath, FileMode.Open, FileAccess.Read);
@@ -70,6 +73,8 @@ namespace QuoteProviders
         /// </summary>
         private void Read()
         {
+            Status = QuoteProviderStatus.LocalRead;
+
             try
             {
                 if (m_fs.Position == m_fs.Length)
@@ -94,6 +99,8 @@ namespace QuoteProviders
         /// </summary>
         private void Close()
         {
+            Status = QuoteProviderStatus.LocalClose;
+
             try
             {
                 m_reader.Close();

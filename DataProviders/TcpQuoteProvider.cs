@@ -52,6 +52,7 @@ namespace QuoteProviders
                 m_state = Close;
             }
 
+            m_status = QuoteProviderStatus.Undefined;
             m_buffer = new byte[800 * 1024]; // longest msg < 800 bytes
             m_readIndex = m_writeIndex = 0;
             m_listeners = new List<IQuoteDataListener>();
@@ -91,7 +92,7 @@ namespace QuoteProviders
         /// </summary>
         private void Create()
         {
-            m_status = QuoteProviderStatus.TcpCreate;
+            Status = QuoteProviderStatus.TcpCreate;
 
             try
             {
@@ -113,14 +114,13 @@ namespace QuoteProviders
         /// </summary>
         private void Connect()
         {
-            m_status = QuoteProviderStatus.TcpConnect;
+            Status = QuoteProviderStatus.TcpConnect;
 
             try
             {
                 Debug.Assert(m_remoteEP != null);
                 m_client.Connect(m_remoteEP);
                 m_state = Authenticate;
-                OnStatusChanged(m_status, QuoteProviderStatus.TcpAuthenticate);
             }
             catch (SocketException se)
             {
@@ -136,7 +136,7 @@ namespace QuoteProviders
         /// </summary>
         private void Authenticate()
         {
-            m_status = QuoteProviderStatus.TcpAuthenticate;
+            Status = QuoteProviderStatus.TcpAuthenticate;
 
             try
             {
@@ -162,7 +162,6 @@ namespace QuoteProviders
                 {
                     m_trials = 0;
                     m_state = InitReceive;
-                    OnStatusChanged(m_status, QuoteProviderStatus.TcpInitReceive);
                 }
                 else
                 {
@@ -188,7 +187,7 @@ namespace QuoteProviders
         /// </summary>
         private void InitReceive()
         {
-            m_status = QuoteProviderStatus.TcpInitReceive;
+            Status = QuoteProviderStatus.TcpInitReceive;
 
             m_readIndex = 0;
             m_writeIndex = 0;
@@ -208,7 +207,7 @@ namespace QuoteProviders
         /// </summary>
         private void Receive()
         {
-            m_status = QuoteProviderStatus.TcpReceive;
+            Status = QuoteProviderStatus.TcpReceive;
 
             try
             {
@@ -264,7 +263,7 @@ namespace QuoteProviders
         /// </summary>
         private void Close()
         {
-            m_status = QuoteProviderStatus.TcpClose;
+            Status = QuoteProviderStatus.TcpClose;
 
             try
             {
@@ -360,13 +359,12 @@ namespace QuoteProviders
         {
             if (++m_trials >= 3)
             {
-                OnErrorOccurred(new Exception("Max number of reconnection trials reached.\nExiting..."), true);
+                OnErrorOccurred(new Exception("Max number of reconnection trials reached."), true);
                 m_state = Close;
             }
             Close(); // first, close
             m_state = Create; // then, recreate
             Thread.Sleep(1000 + m_rand.Next(2000));
-            OnStatusChanged(previous, QuoteProviderStatus.TcpCreate);
         }
     }
 }
