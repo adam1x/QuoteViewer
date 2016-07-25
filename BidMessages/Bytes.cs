@@ -9,6 +9,17 @@ namespace BidMessages
     public static class Bytes
     {
         /// <summary>
+        /// This method converts bytes from a specific index a given byte array to an int value.
+        /// </summary>
+        /// <param name="bytes">the source array.</param>
+        /// <param name="startIndex">the starting index in <c>bytes</c>.</param>
+        /// <returns>An int value encoded in <c>bytes</c>.</returns>
+        public static int ToInt32(this byte[] bytes, int startIndex)
+        {
+            return IPAddress.NetworkToHostOrder(BitConverter.ToInt32(bytes, startIndex));
+        }
+
+        /// <summary>
         /// This method converts bytes from a specific index a given byte array to a uint value.
         /// </summary>
         /// <param name="bytes">the source array.</param>
@@ -28,6 +39,16 @@ namespace BidMessages
         public static ushort ToUInt16(this byte[] bytes, int startIndex)
         {
             return NetworkToHostOrder(BitConverter.ToUInt16(bytes, startIndex));
+        }
+
+        /// <summary>
+        /// This method converts a ushort value to network order if necessary.
+        /// </summary>
+        /// <param name="net">the original uint value.</param>
+        /// <returns>The same ushort in network order.</returns>
+        public static ushort HostToNetworkOrder(ushort host)
+        {
+            return (ushort)IPAddress.NetworkToHostOrder((short)host);
         }
 
         /// <summary>
@@ -51,23 +72,19 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method converts a uint value to network order if necessary.
+        /// This method writes an int value into a byte array at a given index.
         /// </summary>
-        /// <param name="net">the original uint value.</param>
-        /// <returns>The same uint in network order.</returns>
-        public static uint HostToNetworkOrder(uint host)
+        /// <param name="value">the int value to be converted.</param>
+        /// <param name="target">the target byte array.</param>
+        /// <param name="offset">the index at which this method writes.</param>
+        public static void GetBytes(this int value, byte[] target, int offset)
         {
-            return (uint)IPAddress.NetworkToHostOrder((int)host);
-        }
-
-        /// <summary>
-        /// This method converts a ushort value to network order if necessary.
-        /// </summary>
-        /// <param name="net">the original uint value.</param>
-        /// <returns>The same ushort in network order.</returns>
-        public static ushort HostToNetworkOrder(ushort host)
-        {
-            return (ushort)IPAddress.NetworkToHostOrder((short)host);
+            int temp = value;
+            for (int i = 0; i < sizeof(int); i++)
+            {
+                target[offset + i] = (byte)(temp & 0xFF);
+                temp >>= 8;
+            }
         }
 
         /// <summary>

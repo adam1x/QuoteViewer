@@ -5,9 +5,9 @@
     /// </summary>
     public interface IQuoteDataProvider
     {
-        /// <value>
+        /// <summary>
         /// Property <c>ProviderName</c> represents the provider's name.
-        /// </value>
+        /// </summary>
         string ProviderName { get; }
 
         /// <summary>

@@ -118,10 +118,5 @@
         /// Indicates that the field represents content text.
         /// </summary>
         ContentText,
-
-        /// <summary>
-        /// Indicates that the field represents control data.
-        /// </summary>
-        ControlData,
     }
 }

@@ -9,23 +9,16 @@ namespace QuoteProviders
     /// </summary>
     public interface IQuoteDataListener
     {
-        /// <value>
-        /// Property <c>ProviderName</c> represents the listener's name.
-        /// </value>
+        /// <summary>
+        /// Property <c>ListenerName</c> represents the listener's name.
+        /// </summary>
         string ListenerName { get; }
 
         /// <summary>
         /// This method, once implemented, defines what should be done once a <c>QuoteMessage</c> is received.
         /// </summary>
-        /// <param name="msg">the received <c>QuoteMessage</c>.</param>
-        void OnQuoteMessageReceived(QuoteMessage msg);
-
-        ///// <summary>
-        ///// This method, once implemented, defines what should be done once a provider's state changes.
-        ///// </summary>
-        ///// <param name="previous">the previous state.</param>
-        ///// <param name="current">the current state.</param>
-        //void OnStatusChanged(QuoteProviderStatus previous, QuoteProviderStatus current);
+        /// <param name="message">the received <c>QuoteMessage</c> object.</param>
+        void OnQuoteMessageReceived(QuoteMessage message);
 
         /// <summary>
         /// This method, once implemented, defines what should be done once an error occurs.

@@ -13,19 +13,33 @@ namespace BidMessages
         /// This constructor initializes a new instance of the <c>SessionKeyReplyMessage</c> class with the given byte array.
         /// </summary>
         /// <param name="message">the byte array representation of this message.</param>
-        /// <exception cref="System.Exception">The input byte array does not represent a session key reply message.</exception>
-        public SessionKeyReplyMessage(byte[] message)
+        /// <param name="offset">the position where message begins.</param>
+        /// <exception cref="System.ArgumentNullException">The input byte array is null.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The input byte array is not long enough.</exception>
+        /// <exception cref="System.ArgumentException">The input byte array does not represent a session key reply message.</exception>
+        public SessionKeyReplyMessage(byte[] message, int offset)
+            : base(message, offset)
         {
-            if (PeekFunctionCode(message) != Function)
+            if (message == null)
             {
-                throw new Exception("Function code mismatch.");
+                throw new ArgumentNullException();
             }
-            m_sessionKey = message.ToUInt32(HeaderLength);
+
+            if (message.Length - offset < HeaderLength + sizeof(int))
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            if (PeekFunctionCode(message, offset) != Function)
+            {
+                throw new ArgumentException("Function code mismatch.");
+            }
+            m_sessionKey = message.ToUInt32(offset + HeaderLength);
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>Function</c> represents the message's function code.
-        /// </value>
+        /// </summary>
         public override FunctionCodes Function
         {
             get
@@ -34,9 +48,9 @@ namespace BidMessages
             }
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>SessionKey</c> represents the message's content: session key.
-        /// </value>
+        /// </summary>
         public uint SessionKey
         {
             get { return m_sessionKey; }
@@ -45,14 +59,14 @@ namespace BidMessages
         /// <summary>
         /// This method encodes the body of a <c>SessionKeyReplyMessage</c> object into the target byte array.
         /// </summary>
-        /// <param name="bytes">the target byte array.</param>
+        /// <param name="target">the target byte array.</param>
         /// <param name="offset">the position to start writing.</param>
         /// <returns>The number of bytes written into <c>bytes</c>.</returns>
-        protected override uint WriteBody(byte[] bytes, int offset)
+        protected override int GetBodyBytes(byte[] target, int offset)
         {
             uint body = m_sessionKey;
-            body.GetBytes(bytes, offset);
-            return sizeof(uint);
+            body.GetBytes(target, offset);
+            return sizeof(int);
         }
 
         /// <summary>
@@ -61,7 +75,7 @@ namespace BidMessages
         /// <returns>A string that contains the message type and session key.</returns>
         public override string ToString()
         {
-            return "Session key reply: " + m_sessionKey;
+            return string.Format("{0}<{1}>", GetType().Name, m_sessionKey);
         }
     }
 }

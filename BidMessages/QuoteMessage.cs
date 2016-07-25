@@ -9,7 +9,7 @@ namespace BidMessages
     /// </summary>
     public abstract class QuoteMessage : BidMessage
     {
-        private static readonly int[] AuctionSessionsComparison = new int[]
+        private static readonly int[] AuctionSessionPriority = new int[]
         {
             1, // sessoin A
             2, // sessoin B
@@ -21,6 +21,8 @@ namespace BidMessages
             4, // sessoin H
         };
 
+        private int m_bodyLength;
+
         /// <summary>
         /// This instance variable represents all the fields a <c>QuoteMessage</c> object has in strings.
         /// </summary>
@@ -30,17 +32,30 @@ namespace BidMessages
         /// This constructor initializes a new instance of the <c>QuoteMessage</c> class with the given byte array, start index, and number of bytes.
         /// </summary>
         /// <param name="message">the byte array that contains this <c>QuoteMessage</c>.</param>
-        /// <param name="startIndex">the starting index.</param>
+        /// <param name="offset">the position where message begins.</param>
         /// <param name="count">the length of this message in bytes.</param>
-        public QuoteMessage(byte[] message, int startIndex, int count)
+        /// <exception cref="System.ArgumentNullException">The input byte array is null.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The input byte array is not long enough.</exception>
+        public QuoteMessage(byte[] message, int offset, int count)
         {
-            string bodyString = TextEncoding.GetString(message, startIndex + HeaderLength, count - HeaderLength);
+            if (message == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (message.Length - offset < count)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            m_bodyLength = count - HeaderLength;
+            string bodyString = TextEncoding.GetString(message, offset + HeaderLength, m_bodyLength);
             m_fields = bodyString.Split(',');
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>Function</c> represents the message's function code.
-        /// </value>
+        /// </summary>
         public override FunctionCodes Function
         {
             get
@@ -49,9 +64,9 @@ namespace BidMessages
             }
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>UpdateTimestamp</c> represents the message's update timestamp.
-        /// </value>
+        /// </summary>
         public DateTime UpdateTimestamp
         {
             get
@@ -60,14 +75,14 @@ namespace BidMessages
             }
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>AuctionSession</c> represents the message's auction session.
-        /// </value>
+        /// </summary>
         public abstract AuctionSessions AuctionSession { get; }
 
-        /// <value>
+        /// <summary>
         /// This indexor represents the message's fields.
-        /// </value>
+        /// </summary>
         public string this[int index]
         {
             get
@@ -76,96 +91,146 @@ namespace BidMessages
             }
         }
 
+        #region Get value from string fields
         /// <summary>
-        /// This method generates a dictionary from field tags as defined in <c>QuoteFieldTags</c> to indices to the message's fields.
+        /// Gets the Int32 value associated with the specified tag.
         /// </summary>
-        /// <returns>A dictionary from field tags as defined in <c>QuoteFieldTags</c> to indices in the fields.</returns>
-        protected abstract Dictionary<QuoteFieldTags, int> GetTagToIndexMap();
-
-        /// <summary>
-        /// This method gets the index to the fields array given a field tag.
-        /// </summary>
-        /// <param name="tag">a field tag as defined in <c>QuoteFieldTags</c>.</param>
-        /// <returns>The index in the fields array to get a string encoding of a field.</returns>
-        public int GetIndexFromTag(QuoteFieldTags tag)
+        /// <param name="tag">a tag representing a field of this message.</param>
+        /// <param name="defaultValue">the default value to return if the field doesn't exist or the retrieved string is empty.</param>
+        /// <returns>The int value associated with the tag or <c>defaultValue</c>.</returns>
+        public int GetFieldValueAsInt32(QuoteFieldTags tag, int defaultValue)
         {
-            int result;
-            if (GetTagToIndexMap().TryGetValue(tag, out result))
-            {
-                return result;
-            }
-            return -1;
+            return GetFieldValueAsInt32(GetIndexFromTag(tag), defaultValue);
         }
 
-        #region Get value from string fields
+        /// <summary>
+        /// Gets the Int32 value associated with the specified tag.
+        /// </summary>
+        /// <param name="tag">a tag representing a field of this message.</param>
+        /// <returns>The int value associated with the tag or 0.</returns>
+        public int GetFieldValueAsInt32(QuoteFieldTags tag)
+        {
+            return GetFieldValueAsInt32(tag, 0);
+        }
+
         /// <summary>
         /// This method tries to convert a string in this message's fields to an int value.
         /// </summary>
         /// <param name="index">the index in fields.</param>
-        /// <param name="defaultValue">the default value to return if the retrieved string does not represent an int value.</param>
-        /// <returns>The int value parsed from the field or <c>defaultValue</c> if parsing fails.</returns>
+        /// <param name="defaultValue">the default value to return if the field doesn't exist or the retrieved string is empty.</param>
+        /// <returns>The int value parsed from the field or <c>defaultValue</c>.</returns>
+        /// <exception cref="System.FormatException">The field cannot be parsed as an Int32 value.</exception>
         public int GetFieldValueAsInt32(int index, int defaultValue = 0)
         {
+            string raw;
+            raw = GetFieldValueAsString(index);
+            if (string.IsNullOrEmpty(raw))
+            {
+                return defaultValue;
+            }
+
             int result;
-            if (int.TryParse(GetFieldValueAsString(index), out result))
+            if (int.TryParse(raw, out result))
             {
                 return result;
             }
-            return defaultValue;
+
+            throw new FormatException();
         }
 
         /// <summary>
-        /// This method tries to convert a string in this message's fields to a uint value.
+        /// Gets the DateTime value associated with the specified tag.
         /// </summary>
-        /// <param name="index">the index in fields.</param>
-        /// <param name="defaultValue">the default value to return if the retrieved string does not represent a uint value.</param>
-        /// <returns>The uint value parsed from the field or <c>defaultValue</c> if parsing fails.</returns>
-        public uint GetFieldValueAsUInt32(int index, uint defaultValue = 0)
+        /// <param name="tag">a tag representing a field of this message.</param>
+        /// <param name="defaultValue">the default value to return if the field doesn't exist or the retrieved string is empty.</param>
+        /// <returns>The DateTime value associated with the tag or <c>defaultValue</c>.</returns>
+        public DateTime GetFieldValueAsDateTime(QuoteFieldTags tag, DateTime defaultValue)
         {
-            uint result;
-            if (uint.TryParse(GetFieldValueAsString(index), out result))
-            {
-                return result;
-            }
-            return defaultValue;
+            return GetFieldValueAsDateTime(GetIndexFromTag(tag), defaultValue);
+        }
+
+        /// <summary>
+        /// Gets the DateTime value associated with the specified tag.
+        /// </summary>
+        /// <param name="tag">a tag representing a field of this message.</param>
+        /// <returns>The DateTime value associated with the tag or <c>DateTime.MinValue</c>.</returns>
+        public DateTime GetFieldValueAsDateTime(QuoteFieldTags tag)
+        {
+            return GetFieldValueAsDateTime(tag, DateTime.MinValue);
         }
 
         /// <summary>
         /// This method tries to convert a string in this message's fields to a DateTime value.
         /// </summary>
         /// <param name="index">the index in fields.</param>
-        /// <param name="defaultValue">the default value to return if the retrieved string does not represent a DateTime value.</param>
-        /// <returns>The DateTime value parsed from the field or <c>defaultValue</c> if parsing fails.</returns>
+        /// <param name="defaultValue">the default value to return if the field doesn't exist or the retrieved string is empty.</param>
+        /// <returns>The DateTime value parsed from the field or <c>defaultValue</c>.</returns>
+        /// <exception cref="System.FormatException">The field cannot be parsed as an DateTime value.</exception>
         public DateTime GetFieldValueAsDateTime(int index, DateTime defaultValue)
         {
+            string raw;
+            raw = GetFieldValueAsString(index);
+            if (string.IsNullOrEmpty(raw))
+            {
+                return defaultValue;
+            }
+
             DateTime result;
             if (DateTime.TryParseExact(GetFieldValueAsString(index), "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
             {
                 return result;
             }
-            return defaultValue;
+
+            throw new FormatException();
         }
 
         /// <summary>
-        /// This method overloads the method: <c>public DateTime GetDateTimeValue(int index, DateTime defaultValue)</c>.
-        /// It tries to convert a string in this message's fields to a DateTime value.
+        /// Tries to converts a string in this message's fields to a DateTime value.
         /// </summary>
         /// <param name="index">the index in fields.</param>
-        /// <param name="defaultValue">the default value to return if the retrieved string does not represent a DateTime value.</param>
-        /// <returns>The DateTime value parsed from the field or <c>DateTime.MinValue</c> if parsing fails.</returns>
+        /// <returns>The DateTime value parsed from the field or <c>DateTime.MinValue</c>.</returns>
         public DateTime GetFieldValueAsDateTime(int index)
         {
             return GetFieldValueAsDateTime(index, DateTime.MinValue);
         }
 
         /// <summary>
+        /// Gets the TimeSpan value associated with the specified tag.
+        /// </summary>
+        /// <param name="tag">a tag representing a field of this message.</param>
+        /// <param name="defaultValue">the default value to return if the field doesn't exist or the retrieved string is empty.</param>
+        /// <returns>The TimeSpan value associated with the tag or <c>defaultValue</c>.</returns>
+        public TimeSpan GetFieldValueAsTimeSpan(QuoteFieldTags tag, TimeSpan defaultValue)
+        {
+            return GetFieldValueAsTimeSpan(GetIndexFromTag(tag), defaultValue);
+        }
+
+        /// <summary>
+        /// Gets the TimeSpan value associated with the specified tag.
+        /// </summary>
+        /// <param name="tag">a tag representing a field of this message.</param>
+        /// <returns>The TimeSpan value associated with the tag or <c>TimeSpan.Zero</c>.</returns>
+        public TimeSpan GetFieldValueAsTimeSpan(QuoteFieldTags tag)
+        {
+            return GetFieldValueAsTimeSpan(tag, TimeSpan.Zero);
+        }
+
+        /// <summary>
         /// This method tries to convert a string in this message's fields to a TimeSpan value.
         /// </summary>
         /// <param name="index">the index in fields.</param>
-        /// <param name="defaultValue">the default value to return if the retrieved string does not represent a TimeSpan value.</param>
-        /// <returns>The TimeSpan value parsed from the field or <c>defaultValue</c> if parsing fails.</returns>
+        /// <param name="defaultValue">the default value to return if the field doesn't exist or the retrieved string is empty.</param>
+        /// <returns>The TimeSpan value parsed from the field or <c>defaultValue</c>.</returns>
+        /// <exception cref="System.FormatException">The field cannot be parsed as an TimeSpan value.</exception>
         public TimeSpan GetFieldValueAsTimeSpan(int index, TimeSpan defaultValue)
         {
+            string raw;
+            raw = GetFieldValueAsString(index);
+            if (string.IsNullOrEmpty(raw))
+            {
+                return defaultValue;
+            }
+
             TimeSpan result;
             if (TimeSpan.TryParseExact(GetFieldValueAsString(index), "g", CultureInfo.InvariantCulture, out result))
             {
@@ -175,31 +240,13 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method overloads the method: <c>public TimeSpan GetTimeSpanValue(int index, TimeSpan defaultValue)</c>.
-        /// It tries to convert a string in this message's fields to a TimeSpan value.
+        /// Tries to convert a string in this message's fields to a TimeSpan value.
         /// </summary>
         /// <param name="index">the index in fields.</param>
-        /// <param name="defaultValue">the default value to return if the retrieved string does not represent a TimeSpan value.</param>
-        /// <returns>The TimeSpan value parsed from the field or <c>TimeSpan.Zero</c> if parsing fails.</returns>
+        /// <returns>The TimeSpan value parsed from the field or <c>TimeSpan.Zero</c>.</returns>
         public TimeSpan GetFieldValueAsTimeSpan(int index)
         {
             return GetFieldValueAsTimeSpan(index, TimeSpan.Zero);
-        }
-
-        /// <summary>
-        /// This method overloads the method: <c>public string GetStringValue(int index, string defaultValue)</c>.
-        /// It tries to convert a string in this message's fields to a string value.
-        /// </summary>
-        /// <param name="index">the index in fields.</param>
-        /// <returns>The string value found in the field.</returns>
-        /// <exception cref="System.IndexOutOfRangeException">Out of range array access.</exception>
-        public string GetFieldValueAsString(int index)
-        {
-            if (index < 0 || index >= m_fields.Length)
-            {
-                throw new IndexOutOfRangeException();
-            }
-            return m_fields[index];
         }
 
         /// <summary>
@@ -208,8 +255,40 @@ namespace BidMessages
         /// <returns>The <c>AuctionSessions</c> value parsed from the field.</returns>
         public AuctionSessions GetFieldValueAsAuctionSessions()
         {
-            return (AuctionSessions)this[GetIndexFromTag(QuoteFieldTags.AuctionSession)][0];
+            return (AuctionSessions)GetFieldValueAsString(GetIndexFromTag(QuoteFieldTags.AuctionSession))[0];
         }
+
+        /// <summary>
+        /// Gets the string value associated with the specified tag.
+        /// </summary>
+        /// <param name="tag">a tag representing a field of this message.</param>
+        /// <returns>The string value associated with the tag.</returns>
+        public string GetFieldValueAsString(QuoteFieldTags tag)
+        {
+            return GetFieldValueAsString(GetIndexFromTag(tag));
+        }
+
+        /// <summary>
+        /// Tries to retrieve a string in this message's fields.
+        /// </summary>
+        /// <param name="index">the index in fields.</param>
+        /// <returns>The string in the field.</returns>
+        /// <exception cref="System.IndexOutOfRangeException">Out of range array access.</exception>
+        public string GetFieldValueAsString(int index)
+        {
+            if (index < 0 || index >= m_fields.Length)
+            {
+                return null;
+            }
+            return m_fields[index];
+        }
+
+        /// <summary>
+        /// This method gets the index to the fields array given a field tag.
+        /// </summary>
+        /// <param name="tag">a field tag as defined in <c>QuoteFieldTags</c>.</param>
+        /// <returns>The index in the fields array or -1 if the field doesn't exist.</returns>
+        public abstract int GetIndexFromTag(QuoteFieldTags tag);
         #endregion
 
         /// <summary>
@@ -217,30 +296,43 @@ namespace BidMessages
         /// </summary>
         /// <param name="message">the byte array representing a <c>QuoteMessage</c>.</param>
         /// <param name="startIndex">the start index.</param>
-        /// <exception cref="System.NotSupportedException">The session is unsupported or malformed message.</exception>
         /// <returns>The session of this message.</returns>
+        /// <exception cref="System.FormatException">The input byte array is malformed.</exception>
+        /// <exception cref="System.NotSupportedException">The session is unsupported or malformed message.</exception>
         public static AuctionSessions PeekSession(byte[] message, int startIndex)
         {
-            int offset = 24; // offset from start to comma before session
-            string s = TextEncoding.GetString(message, startIndex + offset, 3);
-            switch (s)
+            const int offset = 25; // offset from start to session
+            if (message[startIndex + offset - 1] != (byte)',' || message[startIndex + offset + 1] != (byte)',')
             {
-                case ",A,":
+            	throw new FormatException();
+            }
+
+            switch (message[startIndex + offset])
+            {
+                case (byte)'A':
                     return AuctionSessions.SessionA;
-                case ",B,":
+
+                case (byte)'B':
                     return AuctionSessions.SessionB;
-                case ",C,":
+
+                case (byte)'C':
                     return AuctionSessions.SessionC;
-                case ",D,":
+
+                case (byte)'D':
                     return AuctionSessions.SessionD;
-                case ",E,":
+
+                case (byte)'E':
                     return AuctionSessions.SessionE;
-                case ",F,":
+
+                case (byte)'F':
                     return AuctionSessions.SessionF;
-                case ",G,":
+
+                case (byte)'G':
                     return AuctionSessions.SessionG;
-                case ",H,":
+
+                case (byte)'H':
                     return AuctionSessions.SessionH;
+
                 default:
                     throw new NotSupportedException("Unsuppoted message session.");
             }
@@ -249,13 +341,31 @@ namespace BidMessages
         /// <summary>
         /// This method encodes the body of a <c>QuoteMessage</c> object into the target byte array.
         /// </summary>
-        /// <param name="bytes">the target byte array.</param>
+        /// <param name="target">the target byte array.</param>
         /// <param name="offset">the position to start writing.</param>
         /// <returns>The number of bytes written into <c>bytes</c>.</returns>
-        protected override uint WriteBody(byte[] bytes, int offset)
+        protected override int GetBodyBytes(byte[] target, int offset)
         {
             string body = string.Join(",", m_fields);
-            return (uint)TextEncoding.GetBytes(body, 0, body.Length, bytes, offset);
+            return TextEncoding.GetBytes(body, 0, body.Length, target, offset);
+        }
+
+        /// <summary>
+        /// Gets the length of the body of this message.
+        /// </summary>
+        /// <returns>The length of the body of this message.</returns>
+        protected override int GetBodyLength()
+        {
+            return m_bodyLength;
+        }
+
+        /// <summary>
+        /// This method gets a string representation for the specified <c>SessionBMessage</c> instance.
+        /// </summary>
+        /// <returns>A string that contains the message type and update time.</returns>
+        public override string ToString()
+        {
+            return string.Format("{0}<{1}>", GetType().Name, UpdateTimestamp);
         }
 
         #region Message Comparison
@@ -366,7 +476,7 @@ namespace BidMessages
         /// <returns>A value greater than 0 if s1 > s2, 0 if s1 == s2, and a value smaller than 1 if s1 &lt; s2.</returns>
         public static int CompareSession(AuctionSessions s1, AuctionSessions s2)
         {
-            return (AuctionSessionsComparison[s1 - AuctionSessions.SessionA] - AuctionSessionsComparison[s2 - AuctionSessions.SessionA]);
+            return (AuctionSessionPriority[s1 - AuctionSessions.SessionA] - AuctionSessionPriority[s2 - AuctionSessions.SessionA]);
         }
 
         /// <summary>

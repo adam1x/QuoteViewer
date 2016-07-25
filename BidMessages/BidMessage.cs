@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Net;
 using System.Diagnostics;
 
 namespace BidMessages
@@ -12,7 +13,7 @@ namespace BidMessages
         /// <summary>
         /// This field represents the length of a message header.
         /// </summary>
-        public static readonly int HeaderLength = sizeof(uint) * 2 + sizeof(ushort);
+        public static readonly int HeaderLength = sizeof(int) * 2 + sizeof(ushort);
         
         /// <summary>
         /// This field represents the text encoding scheme used in a message.
@@ -26,9 +27,9 @@ namespace BidMessages
         {
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>Function</c> represents the message's function code.
-        /// </value>
+        /// </summary>
         public abstract FunctionCodes Function { get; }
 
         #region Factory methods
@@ -51,11 +52,11 @@ namespace BidMessages
                     break;
 
                 case FunctionCodes.SessionKeyReply:
-                    msg = new SessionKeyReplyMessage(message);
+                    msg = new SessionKeyReplyMessage(message, startIndex);
                     break;
 
                 case FunctionCodes.LoginReply:
-                    msg = new LoginReplyMessage(message);
+                    msg = new LoginReplyMessage(message, startIndex);
                     break;
 
                 default:
@@ -120,39 +121,64 @@ namespace BidMessages
 
         #region Serialize
         /// <summary>
-        /// This method serializes a <c>BidMessage</c> object into a byte array.
+        /// This method serializes this <c>BidMessage</c> object into a byte array.
         /// </summary>
-        /// <param name="bytesWritten">the actual length of the encoded <c>BidMessage</c>.</param>
-        /// <returns>The byte encoding of a <c>BidMessage</c> object in an array.</returns>
-        public byte[] ToBytes(out int bytesWritten)
+        /// <param name="target">the target byte array.</param>
+        /// <param name="startIndex">the index to start writing.</param>
+        /// <returns>The number of bytes written into the array.</returns>
+        public int GetBytes(byte[] target, int startIndex)
         {
-            byte[] result = new byte[2 * 1024];
+            int bodyLength = GetBodyBytes(target, startIndex + HeaderLength);
+            int length = bodyLength + HeaderLength;
 
-            uint bodyLength = WriteBody(result, HeaderLength);
-            uint length = bodyLength + (uint)HeaderLength;
+            IPAddress.HostToNetworkOrder(length).GetBytes(target, startIndex);
+            startIndex += sizeof(int);
 
-            int offset = 0;
-            Bytes.HostToNetworkOrder(length).GetBytes(result, offset);
-            offset += sizeof(uint);
-            
-            Bytes.HostToNetworkOrder((ushort)Function).GetBytes(result, offset);
-            offset += sizeof(ushort);
-            
-            Bytes.HostToNetworkOrder(bodyLength).GetBytes(result, offset);
-            offset += sizeof(uint);
-            Debug.Assert(offset == HeaderLength);
+            Bytes.HostToNetworkOrder((ushort)Function).GetBytes(target, startIndex);
+            startIndex += sizeof(ushort);
 
-            bytesWritten = (int)length;
-            return result;
+            IPAddress.HostToNetworkOrder(bodyLength).GetBytes(target, startIndex);
+            startIndex += sizeof(int);
+            Debug.Assert(startIndex == HeaderLength);
+
+            return length;
+        }
+
+        /// <summary>
+        /// This method serializes this <c>BidMessage</c> object into a byte array.
+        /// </summary>
+        /// <returns>The output array.</returns>
+        public byte[] GetBytes()
+        {
+            byte[] target = new byte[HeaderLength + GetBodyLength()];
+            GetBytes(target, 0);
+            return target;
         }
 
         /// <summary>
         /// This method encodes the body of a <c>BidMessage</c> object into the target byte array.
         /// </summary>
-        /// <param name="bytes">the target byte array.</param>
+        /// <param name="target">the target byte array.</param>
         /// <param name="offset">the position to start writing.</param>
         /// <returns>The number of bytes written into <c>bytes</c>.</returns>
-        protected abstract uint WriteBody(byte[] bytes, int offset);
+        protected abstract int GetBodyBytes(byte[] target, int offset);
+
+        /// <summary>
+        /// Gets the length of the body of this message.
+        /// </summary>
+        /// <returns>The length of the body of this message.</returns>
+        protected abstract int GetBodyLength();
         #endregion
+
+        /// <summary>
+        /// This method peeks at a message's function code.
+        /// </summary>
+        /// <param name="message">the message in a byte array.</param>
+        /// <param name="offset">the position where message begins.</param>
+        /// <returns>the message's function code.</returns>
+        protected static FunctionCodes PeekFunctionCode(byte[] message, int offset)
+        {
+            return (FunctionCodes)message.ToUInt16(offset + sizeof(uint));
+        }
     }
 }

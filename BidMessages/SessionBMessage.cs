@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace BidMessages
 {
@@ -8,28 +7,31 @@ namespace BidMessages
     /// </summary>
     public class SessionBMessage : QuoteDataMessage
     {
-        private static readonly Dictionary<QuoteFieldTags, int> m_tagToIndex = new Dictionary<QuoteFieldTags, int>
+        private static readonly int[] m_tagToIndex = new int[]
         {
-            { QuoteFieldTags.UpdateTimestamp, 0 },
-            { QuoteFieldTags.AuctionSession, 1 },
-            { QuoteFieldTags.InitialPriceFlag, 2 },
-            { QuoteFieldTags.AuctionName, 3 },
-            { QuoteFieldTags.BidSize, 4 },
-            { QuoteFieldTags.BidQuantity, 5 },
-            { QuoteFieldTags.InitialPrice, 6 },
-            { QuoteFieldTags.AuctionBeginTime, 7 },
-            { QuoteFieldTags.AuctionEndTime, 8 },
-            { QuoteFieldTags.FirstBeginTime, 9 },
-            { QuoteFieldTags.FirstEndTime, 10 },
-            { QuoteFieldTags.SecondBeginTime, 11 },
-            { QuoteFieldTags.SecondEndTime, 12 },
-            { QuoteFieldTags.ServerTime, 13 },
-            { QuoteFieldTags.BidPrice, 14 },
-            { QuoteFieldTags.BidTime, 15 },
-            { QuoteFieldTags.BidLower, 16 },
-            { QuoteFieldTags.BidUpper, 17 },
-            { QuoteFieldTags.ProcessedCount, 18 },
-            { QuoteFieldTags.PendingCount, 19 },
+            -1, // Undefined,
+            0, // UpdateTimestamp,
+            1, // AuctionSession,
+            2, // InitialPriceFlag,
+            3, // AuctionName,
+            4, // BidSize,
+            -1, // LimitPrice,
+            6, // InitialPrice,
+            7, // AuctionBeginTime,
+            8, // AuctionEndTime,
+            9, // FirstBeginTime,
+            10, // FirstEndTime,
+            11, // SecondBeginTime,
+            12, // SecondEndTime,
+            13, // ServerTime,
+            5, // BidQuantity
+            14, // BidPrice,
+            15, // BidTime,
+            18, // ProcessedCount,
+            19, // PendingCount,
+            16, // BidLower,
+            17, // BidUpper,
+            -1, // ContentText,
         };
 
         /// <summary>
@@ -38,19 +40,19 @@ namespace BidMessages
         /// <param name="message">the byte array that contains this <c>SessionBMessage</c>.</param>
         /// <param name="startIndex">the starting index.</param>
         /// <param name="count">the length of this message in bytes.</param>
-        /// <exception cref="System.Exception">Input byte array does not represent a session B message.</exception>
+        /// <exception cref="System.ArgumentException">Input byte array does not represent a session B message.</exception>
         public SessionBMessage(byte[] message, int startIndex, int count)
             : base(message, startIndex, count)
         {
             if (PeekSession(message, startIndex) != AuctionSession)
             {
-                throw new Exception("Session mismatch.");
+                throw new ArgumentException("Session mismatch.");
             }
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>AuctionSession</c> represents the message's auction session.
-        /// </value>
+        /// </summary>
         public override AuctionSessions AuctionSession
         {
             get
@@ -59,9 +61,9 @@ namespace BidMessages
             }
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>PriceUpperBound</c> represents the message's price upper bound.
-        /// </value>
+        /// </summary>
         public override int PriceUpperBound
         {
             get
@@ -70,9 +72,9 @@ namespace BidMessages
             }
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>PriceLowerBound</c> represents the message's price lower bound.
-        /// </value>
+        /// </summary>
         public override int PriceLowerBound
         {
             get
@@ -81,9 +83,9 @@ namespace BidMessages
             }
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>BidUpper</c> represents the message's bid upper.
-        /// </value>
+        /// </summary>
         public int BidUpper
         {
             get
@@ -92,9 +94,9 @@ namespace BidMessages
             }
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>BidLower</c> represents the message's bid lower.
-        /// </value>
+        /// </summary>
         public int BidLower
         {
             get
@@ -104,21 +106,13 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method generates a dictionary from field tags as defined in <c>QuoteFieldTags</c> to indices in <c>m_body</c>.
+        /// This method gets the index to the fields array given a field tag.
         /// </summary>
-        /// <returns>A dictionary from field tags as defined in <c>QuoteFieldTags</c> to indices in <c>m_body</c>.</returns>
-        protected override Dictionary<QuoteFieldTags, int> GetTagToIndexMap()
+        /// <param name="tag">a field tag as defined in <c>QuoteFieldTags</c>.</param>
+        /// <returns>The index in the fields array or -1 if the field doesn't exist.</returns>
+        public override int GetIndexFromTag(QuoteFieldTags tag)
         {
-            return m_tagToIndex;
-        }
-
-        /// <summary>
-        /// This method gets a string representation for the specified <c>SessionBMessage</c> instance.
-        /// </summary>
-        /// <returns>A string that contains the message type and update time.</returns>
-        public override string ToString()
-        {
-            return "Session B: " + UpdateTimestamp;
+            return m_tagToIndex[(int)tag];
         }
     }
 }

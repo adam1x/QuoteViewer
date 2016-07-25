@@ -1,19 +1,10 @@
-﻿using System.Collections.Generic;
-
-namespace BidMessages
+﻿namespace BidMessages
 {
     /// <summary>
     /// Class <c>SessionAMessage</c> models <c>QuoteMessage</c>s of Sessions C, E, F, and H.
     /// </summary>
     public abstract class SessionCEFHMessage : QuoteTextMessage
     {
-        private static readonly Dictionary<QuoteFieldTags, int> m_tagToIndex = new Dictionary<QuoteFieldTags, int>
-        {
-            { QuoteFieldTags.UpdateTimestamp, 0 },
-            { QuoteFieldTags.AuctionSession, 1 },
-            { QuoteFieldTags.ContentText, 2 },
-        };
-
         /// <summary>
         /// This constructor initializes a new instance of the <c>SessionCEFHMessage</c> class with the given byte array, start index, and number of bytes.
         /// </summary>
@@ -26,12 +17,26 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method generates a dictionary from field tags as defined in <c>QuoteFieldTags</c> to indices in <c>m_body</c>.
+        /// This method gets the index to the fields array given a field tag.
         /// </summary>
-        /// <returns>A dictionary from field tags as defined in <c>QuoteFieldTags</c> to indices in <c>m_body</c>.</returns>
-        protected override Dictionary<QuoteFieldTags, int> GetTagToIndexMap()
+        /// <param name="tag">a field tag as defined in <c>QuoteFieldTags</c>.</param>
+        /// <returns>The index in the fields array or -1 if the field doesn't exist.</returns>
+        public override int GetIndexFromTag(QuoteFieldTags tag)
         {
-            return m_tagToIndex;
+            switch (tag)
+            {
+                case QuoteFieldTags.UpdateTimestamp:
+                    return 0;
+
+                case QuoteFieldTags.AuctionSession:
+                    return 1;
+
+                case QuoteFieldTags.ContentText:
+                    return 2;
+
+                default:
+                    return -1;
+            }
         }
     }
 }

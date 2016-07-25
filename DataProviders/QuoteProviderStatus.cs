@@ -11,48 +11,28 @@
         Undefined,
 
         /// <summary>
-        /// Indicates the <c>Open</c> state in <c>LocalQuoteProvider</c>.
+        /// Indicates inactivity: before or after use.
         /// </summary>
-        LocalOpen,
+        Inactive,
 
         /// <summary>
-        /// Indicates the <c>Read</c> state in <c>LocalQuoteProvider</c>.
+        /// Indicates opening the resource.
         /// </summary>
-        LocalRead,
+        Open,
 
         /// <summary>
-        /// Indicates the <c>Close</c> state in <c>LocalQuoteProvider</c>.
+        /// Indicates authenticating with the resource provider.
         /// </summary>
-        LocalClose,
+        Authenticate,
 
         /// <summary>
-        /// Indicates the <c>Create</c> state in <c>TcpQuoteProvider</c>.
+        /// Indicates reading from the resource.
         /// </summary>
-        TcpCreate,
-
+        Read,
+        
         /// <summary>
-        /// Indicates the <c>Connect</c> state in <c>TcpQuoteProvider</c>.
+        /// Indicates closing the resource.
         /// </summary>
-        TcpConnect,
-
-        /// <summary>
-        /// Indicates the <c>Authenticate</c> state in <c>TcpQuoteProvider</c>.
-        /// </summary>
-        TcpAuthenticate,
-
-        /// <summary>
-        /// Indicates the <c>InitReceive</c> state in <c>TcpQuoteProvider</c>.
-        /// </summary>
-        TcpInitReceive,
-
-        /// <summary>
-        /// Indicates the <c>Receive</c> state in <c>TcpQuoteProvider</c>.
-        /// </summary>
-        TcpReceive,
-
-        /// <summary>
-        /// Indicates the <c>Close</c> state in <c>TcpQuoteProvider</c>.
-        /// </summary>
-        TcpClose,
+        Close,
     }
 }

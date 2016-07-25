@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Collections.Generic;
-using System.Threading;
 using System.Diagnostics;
 
 using BidMessages;
@@ -10,7 +8,7 @@ using BidMessages;
 namespace QuoteProviders
 {
     /// <summary>
-    /// Class <c>TcpQuoteProvider</c> models a parser that interacts with a remote server to retrieve and process quote data.
+    /// Provides quote data through interaction with remote servers.
     /// </summary>
     public class TcpQuoteProvider : QuoteDataProvider
     {
@@ -23,66 +21,55 @@ namespace QuoteProviders
         private int m_writeIndex;
         private uint m_lastReception;
         private uint m_lastHeartbeat;
-        private uint m_maxHeartbeatInterval;
+        private int m_maxHeartbeatInterval;
         private byte[] m_heartbeatBytes;
-        private int m_heartbeatLength;
-        private uint m_trials;
+        private int m_retryTimes;
         private Random m_rand = new Random();
 
         /// <summary>
         /// This constructor initializes the new <c>TcpDataProvider</c> object with the remote server's address and credentials to login.
         /// </summary>
-        /// <param name="ipAddressString">the IP address of the remote server.</param>
+        /// <param name="address">the host name or IP address of the remote server.</param>
         /// <param name="port">the port number on the remote server.</param>
         /// <param name="username">the username for login.</param>
         /// <param name="password">the password for the account.</param>
-        public TcpQuoteProvider(string ipAddressString, int port, string username, string password)
+        /// <exception cref="System.ArgumentNullException">The input byte array is null.</exception>
+        public TcpQuoteProvider(string address, int port, string username, string password)
         {
-            try
+            if (address == null || username == null || password == null)
             {
-                IPAddress ipAddress = IPAddress.Parse(ipAddressString);
-                m_remoteEP = new IPEndPoint(ipAddress, 8301);
-                m_username = username;
-                m_password = password;
-                m_state = Create;
-            }
-            catch (Exception ex)
-            {
-                OnErrorOccurred(ex, true);
-                m_state = Close;
+                throw new ArgumentNullException();
             }
 
-            m_status = QuoteProviderStatus.Undefined;
-            m_buffer = new byte[800 * 1024]; // longest msg < 800 bytes
+            IPAddress[] ipAddresses = Dns.GetHostAddresses(address);
+            if (ipAddresses.Length == 0)
+            {
+                throw new ArgumentException("Unable to resolve the specified host name to an IP address.");
+            }
+
+            IPAddress ipAddress = ipAddresses[0];
+            m_remoteEP = new IPEndPoint(ipAddress, port);
+
+            m_username = username;
+            m_password = password;
+            HeartbeatMessage heartbeat = new HeartbeatMessage(m_username);
+            m_heartbeatBytes = heartbeat.GetBytes();
+
+            m_state = Create;
+            m_buffer = new byte[4 * 1024];
             m_readIndex = m_writeIndex = 0;
-            m_listeners = new List<IQuoteDataListener>();
-            m_trials = 0;
+            m_retryTimes = 0;
         }
 
         /// <summary>
-        /// This constructor is an overload of <c>public TcpDataProvider(string ipAddressString, int port, string username, string password)</c>.
-        /// It initializes the new <c>TcpDataProvider</c> object with credentials to login on a default server.
-        /// </summary>
-        /// <param name="username">the username for login.</param>
-        /// <param name="password">the password for the account.</param>
-        public TcpQuoteProvider(string username, string password) : this("180.166.86.198", 8301, username, password)
-        {
-        }
-
-        /// <value>
         /// Property <c>ProviderName</c> represents the provider's name.
-        /// </value>
+        /// </summary>
         public override string ProviderName
         {
-            get { return "TcpQuoteProvider"; }
-        }
-
-        /// <summary>
-        /// This method is used to run this parser.
-        /// </summary>
-        public override void Run()
-        {
-            m_state();
+            get
+            {
+                return "TcpQuoteProvider";
+            }
         }
 
         /// <summary>
@@ -90,9 +77,9 @@ namespace QuoteProviders
         /// At this state, the provider creates a socket to be used to connect to the remote server.
         /// It can go to states <c>Connect</c> and <c>Close</c>.
         /// </summary>
-        private void Create()
+        private int Create()
         {
-            Status = QuoteProviderStatus.TcpCreate;
+            ChangeStatus(QuoteProviderStatus.Open);
 
             try
             {
@@ -105,6 +92,8 @@ namespace QuoteProviders
                 OnErrorOccurred(ex, true);
                 m_state = Close;
             }
+
+            return 0;
         }
 
         /// <summary>
@@ -112,10 +101,8 @@ namespace QuoteProviders
         /// At this state, the provider connects to the remote server.
         /// It can go to states <c>Create</c>, <c>Authenticate</c>, and <c>Close</c>.
         /// </summary>
-        private void Connect()
+        private int Connect()
         {
-            Status = QuoteProviderStatus.TcpConnect;
-
             try
             {
                 Debug.Assert(m_remoteEP != null);
@@ -125,79 +112,65 @@ namespace QuoteProviders
             catch (SocketException se)
             {
                 OnErrorOccurred(se, false);
-                RetryOrGiveup(m_status);
+                return RetryOrGiveup(m_status);
             }
+
+            return 0;
         }
 
         /// <summary>
         /// This method signifies the <c>Authenticate</c> state for <c>TcpDataProvider</c>.
         /// At this state, the provider uses the credentials to authenticate with the remote server.
-        /// It can go to states <c>Create</c>, <c>InitReceive</c>, and <c>Close</c>.
+        /// It can go to states <c>Create</c>, <c>Receive</c>, and <c>Close</c>.
         /// </summary>
-        private void Authenticate()
+        private int Authenticate()
         {
-            Status = QuoteProviderStatus.TcpAuthenticate;
+            ChangeStatus(QuoteProviderStatus.Authenticate);
 
             try
             {
-                ControlMessage cmsg = new SessionKeyRequestMessage(m_username);
-                int cmsgLength;
-                byte[] send = cmsg.ToBytes(out cmsgLength);
-                int count = m_client.Send(send, cmsgLength, SocketFlags.None);
+                SessionKeyRequestMessage sessionKeyRequest = new SessionKeyRequestMessage(m_username);
+                int length = sessionKeyRequest.GetBytes(m_buffer, 0);
+                int count = m_client.Send(m_buffer, 0, length, SocketFlags.None);
 
                 count = m_client.Receive(m_buffer);
-                uint length = Bytes.NetworkToHostOrder(BitConverter.ToUInt32(m_buffer, 0));
-                cmsg = (ControlMessage)BidMessage.Create(FunctionCodes.SessionKeyReply, m_buffer, 0, (int)length);
-                uint sessionKey = ((SessionKeyReplyMessage)cmsg).SessionKey;
+                length = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(m_buffer, 0));
+                SessionKeyReplyMessage sessionKeyReply = (SessionKeyReplyMessage)BidMessage.Create(FunctionCodes.SessionKeyReply, m_buffer, 0, length);
+                uint sessionKey = sessionKeyReply.SessionKey;
 
-                cmsg = new LoginRequestMessage(m_username, m_password, sessionKey);
-                count = m_client.Send(cmsg.ToBytes(out cmsgLength), cmsgLength, SocketFlags.None);
+                LoginRequestMessage LoginRequest = new LoginRequestMessage(m_username, m_password, sessionKey);
+                length = LoginRequest.GetBytes(m_buffer, 0);
+                count = m_client.Send(m_buffer, 0, length, SocketFlags.None);
 
                 count = ReceiveMessage();
-                length = Bytes.NetworkToHostOrder(BitConverter.ToUInt32(m_buffer, 0));
-                cmsg = (ControlMessage)BidMessage.Create(FunctionCodes.LoginReply, m_buffer, 0, (int)length);
-                m_maxHeartbeatInterval = ((LoginReplyMessage)cmsg).MaxHeartbeatInterval;
+                length = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(m_buffer, 0));
+                LoginReplyMessage loginReply = (LoginReplyMessage)BidMessage.Create(FunctionCodes.LoginReply, m_buffer, 0, length);
+                m_maxHeartbeatInterval = loginReply.MaxHeartbeatInterval;
 
                 if (m_maxHeartbeatInterval > 0)
                 {
-                    m_trials = 0;
-                    m_state = InitReceive;
+                    m_retryTimes = 0;
+                    m_readIndex = m_writeIndex = 0;
+                    m_lastReception = m_lastHeartbeat = (uint)Environment.TickCount;
+                    m_state = Receive;
                 }
                 else
                 {
-                    throw new ApplicationException("Invalid login.");
+                    throw new Exception("Invalid login.");
                 }
             }
             catch (SocketException se)
             {
                 OnErrorOccurred(se, false);
-                RetryOrGiveup(m_status);
+                return RetryOrGiveup(m_status);
             }
             catch (Exception ex)
             {
                 OnErrorOccurred(ex, true);
                 m_state = Close;
             }
-        }
 
-        /// <summary>
-        /// This method signifies the <c>InitReceive</c> state for <c>TcpDataProvider</c>.
-        /// At this state, the provider prepares for the <c>Receive</c> state.
-        /// It can go to states <c>Create</c>, <c>Receive</c>, and <c>Close</c>.
-        /// </summary>
-        private void InitReceive()
-        {
-            Status = QuoteProviderStatus.TcpInitReceive;
-
-            m_readIndex = 0;
-            m_writeIndex = 0;
-            m_lastReception = (uint)Environment.TickCount;
-            m_lastHeartbeat = (uint)Environment.TickCount;
-
-            ControlMessage pmsg = new HeartbeatMessage(m_username);
-            m_heartbeatBytes = pmsg.ToBytes(out m_heartbeatLength);
-
-            m_state = Receive;
+            return 0;
         }
 
         /// <summary>
@@ -205,9 +178,9 @@ namespace QuoteProviders
         /// At this state, the provider receives data from the remote server and parses them for <c>QuoteMessage</c>s.
         /// It can go to states <c>Create</c> and <c>Close</c>.
         /// </summary>
-        private void Receive()
+        private int Receive()
         {
-            Status = QuoteProviderStatus.TcpReceive;
+            ChangeStatus(QuoteProviderStatus.Read);
 
             try
             {
@@ -217,7 +190,7 @@ namespace QuoteProviders
                     if (count <= 0)
                     {
                         m_state = Close;
-                        throw new ApplicationException("Connection closed by remote host.");
+                        throw new Exception("Connection closed by remote host.");
                     }
                     m_writeIndex += count;
                     m_lastReception = (uint)Environment.TickCount;
@@ -241,41 +214,52 @@ namespace QuoteProviders
 
                 if (TicksSince(m_lastHeartbeat) >= 3000)
                 {
-                    m_client.Send(m_heartbeatBytes, m_heartbeatLength, SocketFlags.None);
+                    m_client.Send(m_heartbeatBytes);
                     m_lastHeartbeat = (uint)Environment.TickCount;
                 }
             }
             catch (SocketException se)
             {
                 OnErrorOccurred(se, false);
-                RetryOrGiveup(m_status);
+                return RetryOrGiveup(m_status);
             }
             catch (Exception ex)
             {
                 OnErrorOccurred(ex, true);
                 m_state = Close;
             }
+
+            return 0;
         }
 
         /// <summary>
         /// This method signifies the <c>Close</c> state for <c>TcpDataProvider</c>.
         /// At this state, the provider closes the connection to the remote server.
         /// </summary>
-        private void Close()
+        private int Close()
         {
-            Status = QuoteProviderStatus.TcpClose;
+            ChangeStatus(QuoteProviderStatus.Close);
 
             try
             {
-                m_client.Shutdown(SocketShutdown.Both);
+                if (m_client != null)
+                {
+                    m_client.Shutdown(SocketShutdown.Both);
+                }
             }
             catch (Exception ex)
             {
                 OnErrorOccurred(ex, false);
             }
 
-            m_client.Close();
+            if (m_client != null)
+            {
+                m_client.Close();
+            }
+
             m_state = null;
+            ChangeStatus(QuoteProviderStatus.Inactive);
+            return 0;
         }
 
         /// <summary>
@@ -288,9 +272,9 @@ namespace QuoteProviders
             count = m_client.Receive(m_buffer, 0, BidMessage.HeaderLength, SocketFlags.None);
             // receive header first
             // determine length of body
-            uint bodyLength = Bytes.NetworkToHostOrder(BitConverter.ToUInt32(m_buffer, sizeof(uint) + sizeof(ushort)));
+            int bodyLength = Bytes.ToInt32(m_buffer, sizeof(int) + sizeof(ushort));
             // receive body
-            count += m_client.Receive(m_buffer, BidMessage.HeaderLength, (int)bodyLength, SocketFlags.None);
+            count += m_client.Receive(m_buffer, BidMessage.HeaderLength, bodyLength, SocketFlags.None);
 
             return count;
         }
@@ -302,15 +286,21 @@ namespace QuoteProviders
         {
             while (m_writeIndex - m_readIndex > BidMessage.HeaderLength)
             {
-                uint length = 0;
+                int length = 0;
                 ushort funcCode = 0;
-                uint bodyLength = 0;
+                int bodyLength = 0;
 
                 for (; m_writeIndex - m_readIndex >= BidMessage.HeaderLength; m_readIndex++)
                 {
-                    length = Bytes.ToUInt32(m_buffer, m_readIndex);
-                    funcCode = Bytes.ToUInt16(m_buffer, m_readIndex + sizeof(uint));
-                    bodyLength = Bytes.ToUInt32(m_buffer, m_readIndex + sizeof(uint) + sizeof(ushort));
+                    int offset = m_readIndex;
+
+                    length = m_buffer.ToInt32(offset);
+                    offset += sizeof(int);
+
+                    funcCode = m_buffer.ToUInt16(offset);
+                    offset += sizeof(ushort);
+
+                    bodyLength = m_buffer.ToInt32(offset);
 
                     if (length - bodyLength == BidMessage.HeaderLength)
                     {
@@ -327,10 +317,10 @@ namespace QuoteProviders
 
                 if (funcCode == (ushort)FunctionCodes.Quote)
                 {
-                    OnMessageParsed((QuoteMessage)BidMessage.Create(FunctionCodes.Quote, m_buffer, m_readIndex, (int)length));
+                    OnMessageParsed((QuoteMessage)BidMessage.Create(FunctionCodes.Quote, m_buffer, m_readIndex, length));
                 }
 
-                m_readIndex += (int)length;
+                m_readIndex += length;
             }
 
             // incomplete message
@@ -355,16 +345,17 @@ namespace QuoteProviders
         /// <summary>
         /// This method tries to reconnect to the remote server, and gives up if trials exceeds a set limit.
         /// </summary>
-        private void RetryOrGiveup(QuoteProviderStatus previous)
+        /// <returns>Time to sleep in milliseconds till executing next state.</returns>
+        private int RetryOrGiveup(QuoteProviderStatus previous)
         {
-            if (++m_trials >= 3)
+            if (++m_retryTimes >= 3)
             {
                 OnErrorOccurred(new Exception("Max number of reconnection trials reached."), true);
                 m_state = Close;
             }
             Close(); // first, close
             m_state = Create; // then, recreate
-            Thread.Sleep(1000 + m_rand.Next(2000));
+            return (1000 + m_rand.Next(2000));
         }
     }
 }

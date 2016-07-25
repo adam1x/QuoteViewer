@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using BidMessages;
 
@@ -13,7 +14,7 @@ namespace QuoteProviders
         /// <summary>
         /// This delegate represents a state that a particular parser might be in.
         /// </summary>
-        public delegate void State();
+        protected delegate int RunByState();
 
         /// <summary>
         /// This event is triggered when the provider changes status.
@@ -23,7 +24,7 @@ namespace QuoteProviders
         /// <summary>
         /// This field represents the state the provider is in.
         /// </summary>
-        protected State m_state;
+        protected RunByState m_state;
 
         /// <summary>
         /// This field represents the provider's status.
@@ -40,45 +41,45 @@ namespace QuoteProviders
         /// </summary>
         public QuoteDataProvider()
         {
+            m_listeners = new List<IQuoteDataListener>();
+            m_status = QuoteProviderStatus.Inactive;
         }
 
-        /// <value>
-        /// Property <c>CurrentState</c> represents a particular parser's current state.
-        /// </value>
-        public State CurrentState
-        {
-            get
-            {
-                return m_state;
-            }
-        }
-
-        /// <value>
+        /// <summary>
         /// Property <c>Status</c> represents a particular parser's status.
         /// Setting a new status triggers a status changed event.
-        /// </value>
+        /// </summary>
         public QuoteProviderStatus Status
         {
             get
             {
                 return m_status;
             }
-            protected set
-            {
-                OnStatusChanged(new StatusChangedEventArgs(m_status, value));
-                m_status = value;
-            }
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>ProviderName</c> represents the provider's name.
-        /// </value>
+        /// </summary>
         public abstract string ProviderName { get; }
 
         /// <summary>
-        /// This method is used to run a parser.
+        /// This method is used to run a quote data provider.
         /// </summary>
-        public abstract void Run();
+        /// <returns>Time to sleep in milliseconds till executing next state.</returns>
+        public int Run()
+        {
+            return m_state();
+        }
+
+        /// <summary>
+        /// Changes the status of a quote data provider and notifies listeners.
+        /// </summary>
+        /// <param name="next"></param>
+        protected void ChangeStatus(QuoteProviderStatus next)
+        {
+            OnStatusChanged(new StatusChangedEventArgs(m_status, next));
+            m_status = next;
+        }
 
         /// <summary>
         /// This method adds a listener to the parser's subscribers list.
@@ -107,55 +108,38 @@ namespace QuoteProviders
         /// <summary>
         /// This method notifies all listeners that a <c>QuoteMessage</c> object has been successfully parsed.
         /// </summary>
-        /// <param name="msg">the <c>QuoteMessage</c> object that has just been parsed.</param>
-        protected void OnMessageParsed(QuoteMessage msg)
+        /// <param name="message">the <c>QuoteMessage</c> object that has just been parsed.</param>
+        protected void OnMessageParsed(QuoteMessage message)
         {
             foreach (IQuoteDataListener listener in m_listeners)
             {
                 try
                 {
-                    listener.OnQuoteMessageReceived(msg);
+                    listener.OnQuoteMessageReceived(message);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Debug.WriteLine("==>{0} call {1}.OnQuoteMessageReceived() failed, Error: {2}", this, listener.ListenerName, ex.Message);
                 }
             }
         }
-
-        ///// <summary>
-        ///// This method notifies all listeners that the provider has had a status change.
-        ///// </summary>
-        ///// <param name="previous">the previous state.</param>
-        ///// <param name="current">the current state.</param>
-        //protected void OnStatusChanged(QuoteProviderStatus previous, QuoteProviderStatus current)
-        //{
-        //    foreach (IQuoteDataListener listener in m_listeners)
-        //    {
-        //        try
-        //        {
-        //            listener.OnStatusChanged(previous, current);
-        //        }
-        //        catch
-        //        {
-        //        }
-        //    }
-        //}
 
         /// <summary>
         /// This method notifies all listeners that an error has occurred.
         /// </summary>
         /// <param name="ex">the exception that represents the error.</param>
         /// <param name="severe">the severity of this error: true means needs to abort; false means can try to recover.</param>
-        protected void OnErrorOccurred(Exception ex, bool severe)
+        protected void OnErrorOccurred(Exception error, bool severe)
         {
             foreach (IQuoteDataListener listener in m_listeners)
             {
                 try
                 {
-                    listener.OnErrorOccurred(ex, severe);
+                    listener.OnErrorOccurred(error, severe);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Debug.WriteLine("==>{0} call {1}.OnErrorOccurred() failed, Error: {2}", this, listener.ListenerName, ex.Message);
                 }
             }
         }

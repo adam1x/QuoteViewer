@@ -16,9 +16,9 @@
         {
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>ContentText</c> represents the message's content text.
-        /// </value>
+        /// </summary>
         public string ContentText
         {
             get

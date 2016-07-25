@@ -9,6 +9,7 @@ namespace BidMessages
     /// </summary>
     public class LoginRequestMessage : ControlRequestMessage
     {
+        private int m_bodyLength;
         private string m_verificatonCode;
 
         /// <summary>
@@ -20,11 +21,12 @@ namespace BidMessages
         public LoginRequestMessage(string username, string password, uint sessionKey)
         {
             m_verificatonCode = CreateVerificationCode(username, password, sessionKey);
+            m_bodyLength = TextEncoding.GetByteCount(m_verificatonCode);
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>Function</c> represents the message's function code.
-        /// </value>
+        /// </summary>
         public override FunctionCodes Function
         {
             get
@@ -33,9 +35,9 @@ namespace BidMessages
             }
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>VerificationCode</c> represents the verification code used in login request.
-        /// </value>
+        /// </summary>
         public string VerificationCode
         {
             get { return m_verificatonCode; }
@@ -70,13 +72,22 @@ namespace BidMessages
         /// <summary>
         /// This method encodes the body of a <c>LoginRequestMessage</c> object into the target byte array.
         /// </summary>
-        /// <param name="bytes">the target byte array.</param>
+        /// <param name="target">the target byte array.</param>
         /// <param name="offset">the position to start writing.</param>
         /// <returns>The number of bytes written into <c>bytes</c>.</returns>
-        protected override uint WriteBody(byte[] bytes, int offset)
+        protected override int GetBodyBytes(byte[] target, int offset)
         {
             string body = m_verificatonCode;
-            return (uint)TextEncoding.GetBytes(body, 0, body.Length, bytes, offset);
+            return TextEncoding.GetBytes(body, 0, body.Length, target, offset);
+        }
+
+        /// <summary>
+        /// Gets the length of the body of this message.
+        /// </summary>
+        /// <returns>The length of the body of this message.</returns>
+        protected override int GetBodyLength()
+        {
+            return m_bodyLength;
         }
 
         /// <summary>
@@ -85,7 +96,7 @@ namespace BidMessages
         /// <returns>A string that contains the message type and verificaton code.</returns>
         public override string ToString()
         {
-            return "Login request: " + m_verificatonCode;
+            return string.Format("{0}<{1}>", GetType().Name, m_verificatonCode);
         }
     }
 }

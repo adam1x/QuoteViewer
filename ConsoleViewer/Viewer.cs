@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 using BidMessages;
 using QuoteProviders;
@@ -20,9 +21,9 @@ namespace ConsoleViewer
             m_prevMessage = null;
         }
 
-        /// <value>
+        /// <summary>
         /// Property <c>Listener</c> represents the listener's name.
-        /// </value>
+        /// </summary>
         public string ListenerName
         {
             get { return "ConsoleViewer"; }
@@ -33,7 +34,7 @@ namespace ConsoleViewer
         /// </summary>
         public void Run()
         {
-            QuoteDataProvider parser = null;
+            QuoteDataProvider provider = null;
 
             while (true)
             {
@@ -50,14 +51,14 @@ namespace ConsoleViewer
                         Console.Write("Password: ");
                         string password = Console.ReadLine();
 
-                        parser = new TcpQuoteProvider("180.166.86.198", 8301, username, password);
+                        provider = new TcpQuoteProvider("180.166.86.198", 8301, username, password);
                         break;
 
                     case ConsoleKey.D2:
                         Console.Write("Local path: ");
                         string filePath = Console.ReadLine();
 
-                        parser = new LocalQuoteProvider(filePath);
+                        provider = new FileQuoteProvider(filePath);
                         break;
 
                     default:
@@ -65,30 +66,32 @@ namespace ConsoleViewer
                         break;
                 }
 
-                if (parser != null)
+                if (provider != null)
                 {
-                    parser.StatusChanged += parser_StatusChanged;
+                    provider.StatusChanged += parser_StatusChanged;
                     break;
                 }
             }
 
-            IQuoteDataProvider provider = parser;
-            provider.Subscribe(this);
+            ((IQuoteDataProvider)provider).Subscribe(this);
 
-            while (parser.CurrentState != null)
+            do
             {
-                parser.Run();
+                int sleep = provider.Run();
 
                 if (Console.KeyAvailable)
                 {
                     if (Console.ReadKey(true).Key == ConsoleKey.Escape)
                     {
                         Console.WriteLine("Manual abort.\nExiting...");
-                        provider.Unsubscribe(this);
+                        ((IQuoteDataProvider)provider).Unsubscribe(this);
                         break;
                     }
                 }
+
+                Thread.Sleep(sleep);
             }
+            while (provider.Status != QuoteProviderStatus.Inactive);
 
             Console.Write("\nPress Enter to exit...");
             Console.ReadLine();
@@ -97,72 +100,72 @@ namespace ConsoleViewer
         /// <summary>
         /// This method displays the received <c>QuoteMessage</c> object in a console window.
         /// </summary>
-        /// <param name="msg">the received <c>QuoteMessage</c>.</param>
-        public void OnQuoteMessageReceived(QuoteMessage msg)
+        /// <param name="message">the received <c>QuoteMessage</c> object.</param>
+        public void OnQuoteMessageReceived(QuoteMessage message)
         {
-            if ((object)m_prevMessage != null && !(msg > m_prevMessage))
+            if ((object)m_prevMessage != null && !(message > m_prevMessage))
             {
                 return;
             }
 
             Console.WriteLine("Message:");
-            Console.WriteLine("--Update timestamp: {0}", msg.GetFieldValueAsDateTime(msg.GetIndexFromTag(QuoteFieldTags.UpdateTimestamp)));
-            Console.WriteLine("--Auction session: {0}", msg.GetFieldValueAsAuctionSessions());
+            Console.WriteLine("--Update timestamp: {0}", message.GetFieldValueAsDateTime(message.GetIndexFromTag(QuoteFieldTags.UpdateTimestamp)));
+            Console.WriteLine("--Auction session: {0}", message.GetFieldValueAsAuctionSessions());
 
-            if (msg is QuoteDataMessage)
+            if (message is QuoteDataMessage)
             {
-                Console.WriteLine("--Initial price flag: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.InitialPriceFlag)));
-                Console.WriteLine("--Auction name: {0}", msg.GetFieldValueAsString(msg.GetIndexFromTag(QuoteFieldTags.AuctionName)));
-                Console.WriteLine("--Bid size: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.BidSize)));
+                Console.WriteLine("--Initial price flag: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.InitialPriceFlag)));
+                Console.WriteLine("--Auction name: {0}", message.GetFieldValueAsString(message.GetIndexFromTag(QuoteFieldTags.AuctionName)));
+                Console.WriteLine("--Bid size: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.BidSize)));
 
-                if (msg is SessionAMessage)
+                if (message is SessionAMessage)
                 {
-                    Console.WriteLine("--Limit price: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.LimitPrice)));
-                    Console.WriteLine("--Initial price: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.InitialPrice)));
-                    Console.WriteLine("--Auction begin time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.AuctionBeginTime)));
-                    Console.WriteLine("--Auction end time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.AuctionEndTime)));
-                    Console.WriteLine("--First begin time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.FirstBeginTime)));
-                    Console.WriteLine("--First end time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.FirstEndTime)));
-                    Console.WriteLine("--Second begin time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.SecondBeginTime)));
-                    Console.WriteLine("--Second end time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.SecondEndTime)));
-                    Console.WriteLine("--Server time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.ServerTime)));
-                    Console.WriteLine("--Bid quantity: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.BidQuantity)));
-                    Console.WriteLine("--Bid price: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.BidPrice)));
-                    Console.WriteLine("--Bid time: {0}", msg.GetFieldValueAsDateTime(msg.GetIndexFromTag(QuoteFieldTags.BidTime)));
-                    Console.WriteLine("--Processed count: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.ProcessedCount)));
-                    Console.WriteLine("--Pending count: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.PendingCount)));
+                    Console.WriteLine("--Limit price: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.LimitPrice)));
+                    Console.WriteLine("--Initial price: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.InitialPrice)));
+                    Console.WriteLine("--Auction begin time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.AuctionBeginTime)));
+                    Console.WriteLine("--Auction end time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.AuctionEndTime)));
+                    Console.WriteLine("--First begin time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.FirstBeginTime)));
+                    Console.WriteLine("--First end time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.FirstEndTime)));
+                    Console.WriteLine("--Second begin time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.SecondBeginTime)));
+                    Console.WriteLine("--Second end time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.SecondEndTime)));
+                    Console.WriteLine("--Server time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.ServerTime)));
+                    Console.WriteLine("--Bid quantity: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.BidQuantity)));
+                    Console.WriteLine("--Bid price: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.BidPrice)));
+                    Console.WriteLine("--Bid time: {0}", message.GetFieldValueAsDateTime(message.GetIndexFromTag(QuoteFieldTags.BidTime)));
+                    Console.WriteLine("--Processed count: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.ProcessedCount)));
+                    Console.WriteLine("--Pending count: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.PendingCount)));
                 }
-                else if (msg is SessionBMessage)
+                else if (message is SessionBMessage)
                 {
-                    Console.WriteLine("--Bid quantity: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.BidQuantity)));
-                    Console.WriteLine("--Initial price: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.InitialPrice)));
-                    Console.WriteLine("--Auction begin time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.AuctionBeginTime)));
-                    Console.WriteLine("--Auction end time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.AuctionEndTime)));
-                    Console.WriteLine("--First begin time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.FirstBeginTime)));
-                    Console.WriteLine("--First end time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.FirstEndTime)));
-                    Console.WriteLine("--Second begin time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.SecondBeginTime)));
-                    Console.WriteLine("--Second end time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.SecondEndTime)));
-                    Console.WriteLine("--Server time: {0}", msg.GetFieldValueAsTimeSpan(msg.GetIndexFromTag(QuoteFieldTags.ServerTime)));
-                    Console.WriteLine("--Bid price: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.BidPrice)));
-                    Console.WriteLine("--Bid time: {0}", msg.GetFieldValueAsDateTime(msg.GetIndexFromTag(QuoteFieldTags.BidTime)));
-                    Console.WriteLine("--Bid lower: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.BidLower)));
-                    Console.WriteLine("--Bid upper: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.BidUpper)));
-                    Console.WriteLine("--Processed count: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.ProcessedCount)));
-                    Console.WriteLine("--Pending count: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.PendingCount)));
+                    Console.WriteLine("--Bid quantity: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.BidQuantity)));
+                    Console.WriteLine("--Initial price: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.InitialPrice)));
+                    Console.WriteLine("--Auction begin time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.AuctionBeginTime)));
+                    Console.WriteLine("--Auction end time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.AuctionEndTime)));
+                    Console.WriteLine("--First begin time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.FirstBeginTime)));
+                    Console.WriteLine("--First end time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.FirstEndTime)));
+                    Console.WriteLine("--Second begin time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.SecondBeginTime)));
+                    Console.WriteLine("--Second end time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.SecondEndTime)));
+                    Console.WriteLine("--Server time: {0}", message.GetFieldValueAsTimeSpan(message.GetIndexFromTag(QuoteFieldTags.ServerTime)));
+                    Console.WriteLine("--Bid price: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.BidPrice)));
+                    Console.WriteLine("--Bid time: {0}", message.GetFieldValueAsDateTime(message.GetIndexFromTag(QuoteFieldTags.BidTime)));
+                    Console.WriteLine("--Bid lower: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.BidLower)));
+                    Console.WriteLine("--Bid upper: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.BidUpper)));
+                    Console.WriteLine("--Processed count: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.ProcessedCount)));
+                    Console.WriteLine("--Pending count: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.PendingCount)));
                 }
             }
-            else if (msg is QuoteTextMessage)
+            else if (message is QuoteTextMessage)
             {
-                Console.WriteLine("--Content text: {0}", msg.GetFieldValueAsString(msg.GetIndexFromTag(QuoteFieldTags.ContentText)));
+                Console.WriteLine("--Content text: {0}", message.GetFieldValueAsString(message.GetIndexFromTag(QuoteFieldTags.ContentText)));
 
-                if (msg is SessionCEFHMessage)
+                if (message is SessionCEFHMessage)
                 {
                     // nothing more
                 }
-                else if (msg is SessionDGMessage)
+                else if (message is SessionDGMessage)
                 {
-                    Console.WriteLine("--Processed count: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.ProcessedCount)));
-                    Console.WriteLine("--Pending count: {0}", msg.GetFieldValueAsInt32(msg.GetIndexFromTag(QuoteFieldTags.PendingCount)));
+                    Console.WriteLine("--Processed count: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.ProcessedCount)));
+                    Console.WriteLine("--Pending count: {0}", message.GetFieldValueAsInt32(message.GetIndexFromTag(QuoteFieldTags.PendingCount)));
                 }
             }
 
@@ -178,17 +181,13 @@ namespace ConsoleViewer
             QuoteProviderStatus previous = ev.Previous;
             QuoteProviderStatus next = ev.Next;
 
-            if (previous != QuoteProviderStatus.Undefined && next == QuoteProviderStatus.TcpCreate)
+            if (previous != QuoteProviderStatus.Inactive && next == QuoteProviderStatus.Open)
             {
-                Console.WriteLine("Attempting reconnection...");
+                Console.WriteLine("Attempting to reopen resource...");
             }
-            else if (previous == QuoteProviderStatus.TcpConnect && next == QuoteProviderStatus.TcpAuthenticate)
+            else if ((previous == QuoteProviderStatus.Open || previous == QuoteProviderStatus.Authenticate) && next == QuoteProviderStatus.Read)
             {
-                Console.WriteLine("Connected to remote host.");
-            }
-            else if (previous == QuoteProviderStatus.TcpAuthenticate && next == QuoteProviderStatus.TcpInitReceive)
-            {
-                Console.WriteLine("Successfully logged in.\n");
+                Console.WriteLine("Resource opened successfully.\n");
             }
         }
 

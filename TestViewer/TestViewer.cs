@@ -21,9 +21,9 @@ namespace TestViewer
             foreach (string fileName in testFiles)
             {
                 byte[] message = File.ReadAllBytes(fileName);
-                uint length = Bytes.ToUInt32(message, 0);
-                ushort funcCode = Bytes.ToUInt16(message, sizeof(uint));
-                BidMessage msg = BidMessage.Create((FunctionCodes)funcCode, message, 0, (int)length);
+                int length = message.ToInt32(0);
+                ushort funcCode = message.ToUInt16(sizeof(int));
+                BidMessage msg = BidMessage.Create((FunctionCodes)funcCode, message, 0, length);
                 PrintQuoteMessage((QuoteMessage)msg);
             }
 

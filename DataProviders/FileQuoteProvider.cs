@@ -1,15 +1,16 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Net;
 
 using BidMessages;
 
 namespace QuoteProviders
 {
     /// <summary>
-    /// Class <c>LocalQuoteProvider</c> models a parser that processes local files containing quote data.
+    /// Provides quote data from files.
     /// </summary>
-    public class LocalQuoteProvider : QuoteDataProvider
+    public class FileQuoteProvider : QuoteDataProvider
     {
         private string m_filePath;
         private FileStream m_fs;
@@ -20,28 +21,18 @@ namespace QuoteProviders
         /// and sets its state to <c>Open</c>.
         /// </summary>
         /// <param name="filePath">the path to the local file containing quote data.</param>
-        public LocalQuoteProvider(string filePath)
+        public FileQuoteProvider(string filePath)
         {
             m_filePath = filePath;
-            m_listeners = new List<IQuoteDataListener>();
             m_state = Open;
-            m_status = QuoteProviderStatus.Undefined;
-        }
-
-        /// <value>
-        /// Property <c>ProviderName</c> represents the provider's name.
-        /// </value>
-        public override string ProviderName
-        {
-            get { return "LocalQuoteProvider"; }
         }
 
         /// <summary>
-        /// This method is used to run this parser.
+        /// Property <c>ProviderName</c> represents the provider's name.
         /// </summary>
-        public override void Run()
+        public override string ProviderName
         {
-            m_state();
+            get { return "LocalQuoteProvider"; }
         }
 
         /// <summary>
@@ -49,9 +40,9 @@ namespace QuoteProviders
         /// At this state, the provider opens the target file for read.
         /// It can go to states <c>Read</c> and <c>Close</c>.
         /// </summary>
-        private void Open()
+        private int Open()
         {
-            Status = QuoteProviderStatus.LocalOpen;
+            ChangeStatus(QuoteProviderStatus.Open);
 
             try
             {
@@ -64,6 +55,8 @@ namespace QuoteProviders
                 OnErrorOccurred(ex, true);
                 m_state = Close;
             }
+
+            return 0;
         }
 
         /// <summary>
@@ -71,19 +64,19 @@ namespace QuoteProviders
         /// At this state, the provider reads the opened file and parses its content.
         /// It can go to states <c>Read</c> and <c>Close</c>.
         /// </summary>
-        private void Read()
+        private int Read()
         {
-            Status = QuoteProviderStatus.LocalRead;
+            ChangeStatus(QuoteProviderStatus.Read);
 
             try
             {
                 if (m_fs.Position == m_fs.Length)
                 {
                     m_state = Close;
-                    return;
+                    return 0;
                 }
 
-                QuoteMessage msg = ParseQuote(m_reader);
+                QuoteMessage msg = ParseQuote();
                 OnMessageParsed(msg);
             }
             catch (Exception ex)
@@ -91,33 +84,31 @@ namespace QuoteProviders
                 OnErrorOccurred(ex, true);
                 m_state = Close;
             }
+
+            return 0;
         }
 
         /// <summary>
         /// This method signifies the <c>Close</c> state for <c>LocalDataProvider</c>.
         /// At this state, the provider closes the file.
         /// </summary>
-        private void Close()
+        private int Close()
         {
-            Status = QuoteProviderStatus.LocalClose;
-
-            try
+            ChangeStatus(QuoteProviderStatus.Close);
+            
+            if (m_reader != null)
             {
                 m_reader.Close();
             }
-            catch (Exception ex)
+
+            if (m_fs != null)
             {
-                OnErrorOccurred(ex, false);
-            }
-            finally
-            {
-                if (m_fs != null)
-                {
-                    m_fs.Close();
-                }
+                m_fs.Close();
             }
 
             m_state = null;
+            ChangeStatus(QuoteProviderStatus.Inactive);
+            return 0;
         }
 
         /// <summary>
@@ -125,15 +116,15 @@ namespace QuoteProviders
         /// </summary>
         /// <param name="r">the <c>BinaryReader</c> object reading the target file.</param>
         /// <returns>The parsed <c>QuoteMessage</c> object.</returns>
-        private static QuoteMessage ParseQuote(BinaryReader r)
+        private QuoteMessage ParseQuote()
         {
-            uint length = Bytes.NetworkToHostOrder(r.ReadUInt32());
-            ushort funcCode = Bytes.NetworkToHostOrder(r.ReadUInt16());
-            uint bodyLength = Bytes.NetworkToHostOrder(r.ReadUInt32());
+            int length = IPAddress.NetworkToHostOrder(m_reader.ReadInt32());
+            ushort funcCode = Bytes.NetworkToHostOrder(m_reader.ReadUInt16());
+            int bodyLength = IPAddress.NetworkToHostOrder(m_reader.ReadInt32());
 
-            byte[] body = r.ReadBytes((int)bodyLength);
+            byte[] body = m_reader.ReadBytes(bodyLength);
 
-            return (QuoteMessage)BidMessage.Create(FunctionCodes.Quote, body, -BidMessage.HeaderLength, (int)length);
+            return (QuoteMessage)BidMessage.Create(FunctionCodes.Quote, body, -BidMessage.HeaderLength, length);
         }
     }
 }

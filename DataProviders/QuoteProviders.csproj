@@ -30,9 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BidMessage">
-      <HintPath>..\BidMessages\bin\Debug\BidMessage.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -42,12 +39,18 @@
   <ItemGroup>
     <Compile Include="IQuoteDataListener.cs" />
     <Compile Include="IQuoteDataProvider.cs" />
-    <Compile Include="LocalQuoteProvider.cs" />
+    <Compile Include="FileQuoteProvider.cs" />
     <Compile Include="QuoteDataProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuoteProviderStatus.cs" />
     <Compile Include="StatusChangedEventArgs.cs" />
     <Compile Include="TcpQuoteProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BidMessages\BidMessages.csproj">
+      <Project>{9d9e4960-b784-45a1-a7e3-b5c76708d8a3}</Project>
+      <Name>BidMessages</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
