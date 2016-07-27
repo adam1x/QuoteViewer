@@ -1,7 +1,7 @@
 ﻿namespace BidMessages
 {
     /// <summary>
-    /// Enumeratoin <c>QuoteFieldTags</c> represents all supported fields in the body of a <c>BodyMessage</c>.
+    /// Represents all supported fields in the body of a <c>BodyMessage</c>.
     /// </summary>
     public enum QuoteFieldTags
     {

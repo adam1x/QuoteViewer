@@ -27,7 +27,7 @@ namespace QuoteProviders
         private Random m_rand = new Random();
 
         /// <summary>
-        /// This constructor initializes the new <c>TcpDataProvider</c> object with the remote server's address and credentials to login.
+        /// Initializes a new instance of the <c>TcpDataProvider</c> class with the remote server's address and credentials to login.
         /// </summary>
         /// <param name="address">the host name or IP address of the remote server.</param>
         /// <param name="port">the port number on the remote server.</param>
@@ -62,7 +62,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// Property <c>ProviderName</c> represents the provider's name.
+        /// The provider's name.
         /// </summary>
         public override string ProviderName
         {
@@ -73,9 +73,8 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method signifies the <c>Create</c> state for <c>TcpDataProvider</c>.
-        /// At this state, the provider creates a socket to be used to connect to the remote server.
-        /// It can go to states <c>Connect</c> and <c>Close</c>.
+        /// Creates a socket to be used to connect to the remote server.
+        /// Goes to states <c>Connect</c> and <c>Close</c>.
         /// </summary>
         private int Create()
         {
@@ -97,9 +96,8 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method signifies the <c>Connect</c> state for <c>TcpDataProvider</c>.
-        /// At this state, the provider connects to the remote server.
-        /// It can go to states <c>Create</c>, <c>Authenticate</c>, and <c>Close</c>.
+        /// Connects to the remote server.
+        /// Goes to states <c>Create</c>, <c>Authenticate</c>, and <c>Close</c>.
         /// </summary>
         private int Connect()
         {
@@ -119,9 +117,8 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method signifies the <c>Authenticate</c> state for <c>TcpDataProvider</c>.
-        /// At this state, the provider uses the credentials to authenticate with the remote server.
-        /// It can go to states <c>Create</c>, <c>Receive</c>, and <c>Close</c>.
+        /// Uses the credentials to authenticate with the remote server.
+        /// Goes to states <c>Create</c>, <c>Receive</c>, and <c>Close</c>.
         /// </summary>
         private int Authenticate()
         {
@@ -174,9 +171,8 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method signifies the <c>Receive</c> state for <c>TcpDataProvider</c>.
-        /// At this state, the provider receives data from the remote server and parses them for <c>QuoteMessage</c>s.
-        /// It can go to states <c>Create</c> and <c>Close</c>.
+        /// Receives data from the remote server and parses them for <c>QuoteMessage</c>s.
+        /// Goes to states <c>Create</c> and <c>Close</c>.
         /// </summary>
         private int Receive()
         {
@@ -233,8 +229,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method signifies the <c>Close</c> state for <c>TcpDataProvider</c>.
-        /// At this state, the provider closes the connection to the remote server.
+        /// Closes the connection to the remote server.
         /// </summary>
         private int Close()
         {
@@ -263,7 +258,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method receives a single message from the remote server.
+        /// Receives a single message from the remote server.
         /// </summary>
         /// <returns>The number of bytes received.</returns>
         private int ReceiveMessage()
@@ -280,7 +275,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method examines the entire buffer and parses all <c>QuoteMessage</c>s in it.
+        /// Examines the entire buffer and parses all <c>QuoteMessage</c>s in it.
         /// </summary>
         private void ParseMessages()
         {
@@ -333,7 +328,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method calculates the elapsed time since a given time.
+        /// Xalculates the elapsed time since a given time.
         /// </summary>
         /// <param name="last">the given time to calculate elapsed time on.</param>
         /// <returns>The elapsed time.</returns>
@@ -343,7 +338,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method tries to reconnect to the remote server, and gives up if trials exceeds a set limit.
+        /// Tries to reconnect to the remote server, and gives up if trials exceeds a set limit.
         /// </summary>
         /// <returns>Time to sleep in milliseconds till executing next state.</returns>
         private int RetryOrGiveup(QuoteProviderStatus previous)

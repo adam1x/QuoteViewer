@@ -3,14 +3,14 @@
 namespace BidMessages
 {
     /// <summary>
-    /// Class <c>SessionKeyRequestMessage</c> models the session key request sent to server.
+    /// Models the session key request sent to server.
     /// </summary>
     public class SessionKeyRequestMessage : ControlRequestMessage
     {
         private string m_username;
 
         /// <summary>
-        /// This constructor initializes a new instance of the <c>SessionKeyRequestMessage</c> class with the given username.
+        /// Initializes a new instance of the <c>SessionKeyRequestMessage</c> class with the given username.
         /// </summary>
         /// <param name="username">the username used in the session key request.</param>
         /// <exception cref="System.ArgumentNullException">The input byte array is null.</exception>
@@ -24,7 +24,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>Function</c> represents the message's function code.
+        /// The message's function code.
         /// </summary>
         public override FunctionCodes Function
         {
@@ -35,7 +35,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>Username</c> represents the username used in the session key request.
+        /// The username used in the session key request.
         /// </summary>
         public string Username
         {
@@ -43,7 +43,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method encodes the body of a <c>SessionKeyRequestMessage</c> object into the target byte array.
+        /// Encodes the body of a <c>SessionKeyRequestMessage</c> object into the target byte array.
         /// </summary>
         /// <param name="target">the target byte array.</param>
         /// <param name="offset">the position to start writing.</param>
@@ -64,7 +64,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method gets a string representation for the specified <c>SessionKeyRequestMessage</c> instance.
+        /// Gets a string representation for the specified <c>SessionKeyRequestMessage</c> instance.
         /// </summary>
         /// <returns>A string that contains the message type and username.</returns>
         public override string ToString()

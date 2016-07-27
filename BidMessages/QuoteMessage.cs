@@ -5,7 +5,7 @@ using System.Globalization;
 namespace BidMessages
 {
     /// <summary>
-    /// Class <c>QuoteMessage</c> models the messages that contains quote information.
+    /// Models the messages that contains quote information.
     /// </summary>
     public abstract class QuoteMessage : BidMessage
     {
@@ -24,12 +24,12 @@ namespace BidMessages
         private int m_bodyLength;
 
         /// <summary>
-        /// This instance variable represents all the fields a <c>QuoteMessage</c> object has in strings.
+        /// All the fields a <c>QuoteMessage</c> object has in strings.
         /// </summary>
         private string[] m_fields;
 
         /// <summary>
-        /// This constructor initializes a new instance of the <c>QuoteMessage</c> class with the given byte array, start index, and number of bytes.
+        /// Initializes a new instance of the <c>QuoteMessage</c> class with the given byte array, start index, and number of bytes.
         /// </summary>
         /// <param name="message">the byte array that contains this <c>QuoteMessage</c>.</param>
         /// <param name="offset">the position where message begins.</param>
@@ -54,7 +54,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>Function</c> represents the message's function code.
+        /// The message's function code.
         /// </summary>
         public override FunctionCodes Function
         {
@@ -65,7 +65,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>UpdateTimestamp</c> represents the message's update timestamp.
+        /// The message's update timestamp.
         /// </summary>
         public DateTime UpdateTimestamp
         {
@@ -76,12 +76,12 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>AuctionSession</c> represents the message's auction session.
+        /// The message's auction session.
         /// </summary>
         public abstract AuctionSessions AuctionSession { get; }
 
         /// <summary>
-        /// This indexor represents the message's fields.
+        /// The message's fields.
         /// </summary>
         public string this[int index]
         {
@@ -114,7 +114,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method tries to convert a string in this message's fields to an int value.
+        /// Tries to convert a string in this message's fields to an int value.
         /// </summary>
         /// <param name="index">the index in fields.</param>
         /// <param name="defaultValue">the default value to return if the field doesn't exist or the retrieved string is empty.</param>
@@ -160,7 +160,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method tries to convert a string in this message's fields to a DateTime value.
+        /// Tries to convert a string in this message's fields to a DateTime value.
         /// </summary>
         /// <param name="index">the index in fields.</param>
         /// <param name="defaultValue">the default value to return if the field doesn't exist or the retrieved string is empty.</param>
@@ -216,7 +216,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method tries to convert a string in this message's fields to a TimeSpan value.
+        /// Tries to convert a string in this message's fields to a TimeSpan value.
         /// </summary>
         /// <param name="index">the index in fields.</param>
         /// <param name="defaultValue">the default value to return if the field doesn't exist or the retrieved string is empty.</param>
@@ -250,7 +250,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method extracts an <c>AuctionSessions</c> value out of this message's fields.
+        /// Extracts an <c>AuctionSessions</c> value out of this message's fields.
         /// </summary>
         /// <returns>The <c>AuctionSessions</c> value parsed from the field.</returns>
         public AuctionSessions GetFieldValueAsAuctionSessions()
@@ -284,7 +284,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method gets the index to the fields array given a field tag.
+        /// Gets the index to the fields array given a field tag.
         /// </summary>
         /// <param name="tag">a field tag as defined in <c>QuoteFieldTags</c>.</param>
         /// <returns>The index in the fields array or -1 if the field doesn't exist.</returns>
@@ -292,7 +292,7 @@ namespace BidMessages
         #endregion
 
         /// <summary>
-        /// This method retrieves the <c>AuctionSessoins</c> value from a <c>QuoteMessage</c>'s byte array representaion.
+        /// Retrieves the <c>AuctionSessoins</c> value from a <c>QuoteMessage</c>'s byte array representaion.
         /// </summary>
         /// <param name="message">the byte array representing a <c>QuoteMessage</c>.</param>
         /// <param name="startIndex">the start index.</param>
@@ -339,7 +339,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method encodes the body of a <c>QuoteMessage</c> object into the target byte array.
+        /// Encodes the body of a <c>QuoteMessage</c> object into the target byte array.
         /// </summary>
         /// <param name="target">the target byte array.</param>
         /// <param name="offset">the position to start writing.</param>
@@ -360,7 +360,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method gets a string representation for the specified <c>SessionBMessage</c> instance.
+        /// Gets a string representation for the specified <c>SessionBMessage</c> instance.
         /// </summary>
         /// <returns>A string that contains the message type and update time.</returns>
         public override string ToString()
@@ -370,7 +370,7 @@ namespace BidMessages
 
         #region Message Comparison
         /// <summary>
-        /// This method compares two <c>QuoteMessage</c> objects.
+        /// Compares two <c>QuoteMessage</c> objects.
         /// </summary>
         /// <param name="m1">the first <c>QuoteMessage</c> object.</param>
         /// <param name="m2">the first <c>QuoteMessage</c> object.</param>
@@ -469,7 +469,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method compares two <c>AuctionSessions</c> values.
+        /// Compares two <c>AuctionSessions</c> values.
         /// </summary>
         /// <param name="s1">the first <c>AuctionSessions</c> value.</param>
         /// <param name="s2">the second <c>AuctionSessions</c> value.</param>
@@ -480,7 +480,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method determines whether a given object is equal to the current <c>QuoteMessage</c> object.
+        /// Determines whether a given object is equal to the current <c>QuoteMessage</c> object.
         /// </summary>
         /// <param name="obj">the object for comparison.</param>
         /// <returns>True if <c>obj</c> is a <c>QuoteMessage</c> object and is equal to the current object; false otherwise.</returns>
@@ -501,7 +501,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method gets the hash code of the current object.
+        /// Gets the hash code of the current object.
         /// </summary>
         /// <returns>The hash code of the current object.</returns>
         public override int GetHashCode()
@@ -510,7 +510,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method defines a short hand to check whether one <c>QuoteMessage</c> object is greater than another.
+        /// Defines a short hand to check whether one <c>QuoteMessage</c> object is greater than another.
         /// </summary>
         /// <param name="m1">the first <c>QuoteMessage</c> object.</param>
         /// <param name="m2">the second <c>QuoteMessage</c> object.</param>
@@ -521,7 +521,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method defines a short hand to check whether one <c>QuoteMessage</c> object is smaller than another.
+        /// Defines a short hand to check whether one <c>QuoteMessage</c> object is smaller than another.
         /// </summary>
         /// <param name="m1">the first <c>QuoteMessage</c> object.</param>
         /// <param name="m2">the second <c>QuoteMessage</c> object.</param>
@@ -532,7 +532,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method defines a short hand to check whether two <c>QuoteMessage</c> objects are equal.
+        /// Defines a short hand to check whether two <c>QuoteMessage</c> objects are equal.
         /// </summary>
         /// <param name="m1">the first <c>QuoteMessage</c> object.</param>
         /// <param name="m2">the second <c>QuoteMessage</c> object.</param>
@@ -543,7 +543,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method defines a short hand to check whether two <c>QuoteMessage</c> objects are not equal.
+        /// Defines a short hand to check whether two <c>QuoteMessage</c> objects are not equal.
         /// </summary>
         /// <param name="m1">the first <c>QuoteMessage</c> object.</param>
         /// <param name="m2">the second <c>QuoteMessage</c> object.</param>

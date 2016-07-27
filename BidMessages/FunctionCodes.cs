@@ -1,7 +1,7 @@
 ﻿namespace BidMessages
 {
     /// <summary>
-    /// Enumeration <c>FunctionCodes</c> represents supported function codes of <c>BidMessage</c>s.
+    /// Represents supported function codes of <c>BidMessage</c>s.
     /// </summary>
     public enum FunctionCodes : ushort
     {

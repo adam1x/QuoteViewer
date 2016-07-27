@@ -3,7 +3,7 @@
 namespace BidMessages
 {
     /// <summary>
-    /// Class <c>ControlReplyMessage</c> models all the <c>ControlMessage</c>s that are replies from the server.
+    /// Models all the <c>ControlMessage</c>s that are replies from the server.
     /// </summary>
     public abstract class ControlReplyMessage : ControlMessage
     {
@@ -13,7 +13,7 @@ namespace BidMessages
         protected int m_bodyLength;
 
         /// <summary>
-        /// This constructor initializes a new instance of the <c>ControlReplyMessage</c> class.
+        /// Initializes a new instance of the <c>ControlReplyMessage</c> class.
         /// </summary>
         /// <param name="message">the byte array representation of this message.</param>
         /// <param name="offset">the position where message begins.</param>

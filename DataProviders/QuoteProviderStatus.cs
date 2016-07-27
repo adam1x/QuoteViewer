@@ -1,7 +1,7 @@
 ﻿namespace QuoteProviders
 {
     /// <summary>
-    /// Enumeration <c>QuoteProviderStatus</c> represents the various states a quote provider can be in.
+    /// Represents the various states a quote provider can be in.
     /// </summary>
     public enum QuoteProviderStatus
     {

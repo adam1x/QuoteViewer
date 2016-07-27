@@ -3,7 +3,7 @@
 namespace BidMessages
 {
     /// <summary>
-    /// Class <c>SessionAMessage</c> models <c>QuoteMessage</c>s of Session B.
+    /// Models <c>QuoteMessage</c>s of Session B.
     /// </summary>
     public class SessionBMessage : QuoteDataMessage
     {
@@ -35,23 +35,23 @@ namespace BidMessages
         };
 
         /// <summary>
-        /// This constructor initializes a new instance of the <c>SessionBMessage</c> class with the given byte array, start index, and number of bytes.
+        /// Initializes a new instance of the <c>SessionBMessage</c> class with the given byte array, start index, and number of bytes.
         /// </summary>
         /// <param name="message">the byte array that contains this <c>SessionBMessage</c>.</param>
-        /// <param name="startIndex">the starting index.</param>
+        /// <param name="offset">the starting index.</param>
         /// <param name="count">the length of this message in bytes.</param>
         /// <exception cref="System.ArgumentException">Input byte array does not represent a session B message.</exception>
-        public SessionBMessage(byte[] message, int startIndex, int count)
-            : base(message, startIndex, count)
+        public SessionBMessage(byte[] message, int offset, int count)
+            : base(message, offset, count)
         {
-            if (PeekSession(message, startIndex) != AuctionSession)
+            if (PeekSession(message, offset) != AuctionSession)
             {
                 throw new ArgumentException("Session mismatch.");
             }
         }
 
         /// <summary>
-        /// Property <c>AuctionSession</c> represents the message's auction session.
+        /// The message's auction session.
         /// </summary>
         public override AuctionSessions AuctionSession
         {
@@ -62,7 +62,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>PriceUpperBound</c> represents the message's price upper bound.
+        /// The message's price upper bound.
         /// </summary>
         public override int PriceUpperBound
         {
@@ -73,7 +73,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>PriceLowerBound</c> represents the message's price lower bound.
+        /// The message's price lower bound.
         /// </summary>
         public override int PriceLowerBound
         {
@@ -84,7 +84,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>BidUpper</c> represents the message's bid upper.
+        /// The message's bid upper.
         /// </summary>
         public int BidUpper
         {
@@ -95,7 +95,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>BidLower</c> represents the message's bid lower.
+        /// The message's bid lower.
         /// </summary>
         public int BidLower
         {
@@ -106,7 +106,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method gets the index to the fields array given a field tag.
+        /// Gets the index to the fields array given a field tag.
         /// </summary>
         /// <param name="tag">a field tag as defined in <c>QuoteFieldTags</c>.</param>
         /// <returns>The index in the fields array or -1 if the field doesn't exist.</returns>

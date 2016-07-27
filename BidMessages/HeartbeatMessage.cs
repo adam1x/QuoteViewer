@@ -1,14 +1,14 @@
 ﻿namespace BidMessages
 {
     /// <summary>
-    /// Class <c>HeartbeatMessage</c> models heartbeat messages sent to the remote server.
+    /// Models heartbeat messages sent to the remote server.
     /// </summary>
     public class HeartbeatMessage : ControlRequestMessage
     {
         private string m_username;
 
         /// <summary>
-        /// This constructor initializes a new instance of the <c>HeartbeatMessage</c> class with the given username.
+        /// Initializes a new instance of the <c>HeartbeatMessage</c> class with the given username.
         /// </summary>
         /// <param name="username">the username of current user.</param>
         public HeartbeatMessage(string username)
@@ -17,7 +17,7 @@
         }
 
         /// <summary>
-        /// Property <c>Function</c> represents the message's function code.
+        /// The message's function code.
         /// </summary>
         public override FunctionCodes Function
         {
@@ -28,7 +28,7 @@
         }
 
         /// <summary>
-        /// Property <c>Username</c> represents username used in heartbeat message.
+        /// Username used in heartbeat message.
         /// </summary>
         public string Username
         {
@@ -39,7 +39,7 @@
         }
 
         /// <summary>
-        /// This method encodes the body of a <c>HeartbeatMessage</c> object into the target byte array.
+        /// Encodes the body of a <c>HeartbeatMessage</c> object into the target byte array.
         /// </summary>
         /// <param name="target">the target byte array.</param>
         /// <param name="offset">the position to start writing.</param>
@@ -60,7 +60,7 @@
         }
 
         /// <summary>
-        /// This method gets a string representation for the specified <c>HeartbeatMessage</c> instance.
+        /// Gets a string representation for the specified <c>HeartbeatMessage</c> instance.
         /// </summary>
         /// <returns>A string that contains the message type and username.</returns>
         public override string ToString()

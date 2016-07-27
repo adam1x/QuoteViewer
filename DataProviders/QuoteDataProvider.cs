@@ -7,37 +7,37 @@ using BidMessages;
 namespace QuoteProviders
 {
     /// <summary>
-    /// Class <c>QuoteDataProvider</c> models parsers that processes various sources for quote data.
+    /// Models parsers that processes various sources for quote data.
     /// </summary>
     public abstract class QuoteDataProvider : IQuoteDataProvider
     {
         /// <summary>
-        /// This delegate represents a state that a particular parser might be in.
+        /// Run by the state a quote data provider is in.
         /// </summary>
         protected delegate int RunByState();
 
         /// <summary>
-        /// This event is triggered when the provider changes status.
+        /// Triggered when the provider changes status.
         /// </summary>
         public event EventHandler<StatusChangedEventArgs> StatusChanged;
 
         /// <summary>
-        /// This field represents the state the provider is in.
+        /// The state the provider is in.
         /// </summary>
         protected RunByState m_state;
 
         /// <summary>
-        /// This field represents the provider's status.
+        /// The provider's status.
         /// </summary>
         protected QuoteProviderStatus m_status;
 
         /// <summary>
-        /// This field represents a list of subscribers/listeners to this provider.
+        /// A list of subscribers/listeners to this provider.
         /// </summary>
         protected List<IQuoteDataListener> m_listeners;
 
         /// <summary>
-        /// This constructor does nothing specific.
+        /// Initializes a new instance of the <c>QuoteDataProvider</c> class.
         /// </summary>
         public QuoteDataProvider()
         {
@@ -46,8 +46,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// Property <c>Status</c> represents a particular parser's status.
-        /// Setting a new status triggers a status changed event.
+        /// A particular parser's status.
         /// </summary>
         public QuoteProviderStatus Status
         {
@@ -58,12 +57,12 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// Property <c>ProviderName</c> represents the provider's name.
+        /// The provider's name.
         /// </summary>
         public abstract string ProviderName { get; }
 
         /// <summary>
-        /// This method is used to run a quote data provider.
+        /// Runs a quote data provider.
         /// </summary>
         /// <returns>Time to sleep in milliseconds till executing next state.</returns>
         public int Run()
@@ -74,7 +73,7 @@ namespace QuoteProviders
         /// <summary>
         /// Changes the status of a quote data provider and notifies listeners.
         /// </summary>
-        /// <param name="next"></param>
+        /// <param name="next">the status to change to.</param>
         protected void ChangeStatus(QuoteProviderStatus next)
         {
             OnStatusChanged(new StatusChangedEventArgs(m_status, next));
@@ -82,7 +81,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method adds a listener to the parser's subscribers list.
+        /// Adds a listener to the parser's subscribers list.
         /// </summary>
         /// <param name="listener">the listener to be added.</param>
         public void Subscribe(IQuoteDataListener listener)
@@ -94,7 +93,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method removes a listener from the parser's subscribers list.
+        /// Removes a listener from the parser's subscribers list.
         /// </summary>
         /// <param name="listener">the listener to be removed.</param>
         public void Unsubscribe(IQuoteDataListener listener)
@@ -106,7 +105,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method notifies all listeners that a <c>QuoteMessage</c> object has been successfully parsed.
+        /// Notifies all listeners that a <c>QuoteMessage</c> object has been successfully parsed.
         /// </summary>
         /// <param name="message">the <c>QuoteMessage</c> object that has just been parsed.</param>
         protected void OnMessageParsed(QuoteMessage message)
@@ -125,7 +124,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method notifies all listeners that an error has occurred.
+        /// Notifies all listeners that an error has occurred.
         /// </summary>
         /// <param name="ex">the exception that represents the error.</param>
         /// <param name="severe">the severity of this error: true means needs to abort; false means can try to recover.</param>
@@ -145,7 +144,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method notifies all event handlers to consume the raised event.
+        /// Notifies all event handlers to consume the raised event.
         /// </summary>
         /// <param name="ev">the raised event.</param>
         protected virtual void OnStatusChanged(StatusChangedEventArgs ev)

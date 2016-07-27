@@ -3,12 +3,12 @@
 namespace BidMessages
 {
     /// <summary>
-    /// Class <c>SessionAMessage</c> models <c>QuoteMessage</c>s of Session C.
+    /// Models <c>QuoteMessage</c>s of Session C.
     /// </summary>
     public class SessionCMessage : SessionCEFHMessage
     {
         /// <summary>
-        /// This constructor initializes a new instance of the <c>SessionCMessage</c> class with the given byte array, start index, and number of bytes.
+        /// Initializes a new instance of the <c>SessionCMessage</c> class with the given byte array, start index, and number of bytes.
         /// </summary>
         /// <param name="message">the byte array that contains this <c>SessionCMessage</c>.</param>
         /// <param name="startIndex">the starting index.</param>
@@ -24,7 +24,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>AuctionSession</c> represents the message's auction session.
+        /// The message's auction session.
         /// </summary>
         public override AuctionSessions AuctionSession
         {

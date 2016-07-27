@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Net;
 
 using BidMessages;
@@ -17,7 +16,7 @@ namespace QuoteProviders
         private BinaryReader m_reader;
 
         /// <summary>
-        /// This constructor initializes the new <c>LocalDataProvider</c> with a local file path and an empty subscriber list, 
+        /// Initializes the new <c>LocalDataProvider</c> with a local file path and an empty subscriber list, 
         /// and sets its state to <c>Open</c>.
         /// </summary>
         /// <param name="filePath">the path to the local file containing quote data.</param>
@@ -28,7 +27,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// Property <c>ProviderName</c> represents the provider's name.
+        /// The provider's name.
         /// </summary>
         public override string ProviderName
         {
@@ -36,9 +35,8 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method signifies the <c>Open</c> state for <c>LocalDataProvider</c>.
-        /// At this state, the provider opens the target file for read.
-        /// It can go to states <c>Read</c> and <c>Close</c>.
+        /// Opens the target file for read.
+        /// Goes to states <c>Read</c> and <c>Close</c>.
         /// </summary>
         private int Open()
         {
@@ -60,9 +58,8 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method signifies the <c>Read</c> state for <c>LocalDataProvider</c>.
-        /// At this state, the provider reads the opened file and parses its content.
-        /// It can go to states <c>Read</c> and <c>Close</c>.
+        /// Reads the opened file and parses its content.
+        /// Goes to states <c>Read</c> and <c>Close</c>.
         /// </summary>
         private int Read()
         {
@@ -89,8 +86,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method signifies the <c>Close</c> state for <c>LocalDataProvider</c>.
-        /// At this state, the provider closes the file.
+        /// Closes the file.
         /// </summary>
         private int Close()
         {
@@ -112,7 +108,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// This method parses a single quote message from a reading file.
+        /// Parses a single quote message from a reading file.
         /// </summary>
         /// <param name="r">the <c>BinaryReader</c> object reading the target file.</param>
         /// <returns>The parsed <c>QuoteMessage</c> object.</returns>

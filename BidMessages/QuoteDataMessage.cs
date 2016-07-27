@@ -8,7 +8,7 @@ namespace BidMessages
     public abstract class QuoteDataMessage : QuoteMessage
     {
         /// <summary>
-        /// This constructor initializes a new instance of the <c>QuoteDataMessage</c> class with the given byte array, start index, and number of bytes.
+        /// Initializes a new instance of the <c>QuoteDataMessage</c> class with the given byte array, start index, and number of bytes.
         /// </summary>
         /// <param name="message">the byte array that contains this <c>QuoteDataMessage</c>.</param>
         /// <param name="startIndex">the starting index.</param>
@@ -19,7 +19,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>InitialPriceFlag</c> represents the message's initial price flag.
+        /// The message's initial price flag.
         /// </summary>
         public int InitialPriceFlag
         {
@@ -30,7 +30,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>AuctionName</c> represents the message's auction name.
+        /// The message's auction name.
         /// </summary>
         public string AuctionName
         {
@@ -41,7 +41,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>BidSize</c> represents the message's bid size.
+        /// The message's bid size.
         /// </summary>
         public int BidSize
         {
@@ -52,7 +52,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>InitialPrice</c> represents the message's initial price.
+        /// The message's initial price.
         /// </summary>
         public int InitialPrice
         {
@@ -63,7 +63,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>AuctionBeginTime</c> represents the message's auction begin time.
+        /// The message's auction begin time.
         /// </summary>
         public TimeSpan AuctionBeginTime
         {
@@ -74,7 +74,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>AuctionEndTime</c> represents the auction end time.
+        /// The auction end time.
         /// </summary>
         public TimeSpan AuctionEndTime
         {
@@ -85,7 +85,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>FirstBeginTime</c> represents the message's first begin time.
+        /// The message's first begin time.
         /// </summary>
         public TimeSpan FirstBeginTime
         {
@@ -96,7 +96,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>FirstEndTime</c> represents the message's first end time.
+        /// The message's first end time.
         /// </summary>
         public TimeSpan FirstEndTime
         {
@@ -107,7 +107,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>SecondBeginTime</c> represents the message's second begin time.
+        /// The message's second begin time.
         /// </summary>
         public TimeSpan SecondBeginTime
         {
@@ -118,7 +118,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>SecondEndTime</c> represents the message's second end time.
+        /// The message's second end time.
         /// </summary>
         public TimeSpan SecondEndTime
         {
@@ -129,7 +129,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>ServerTime</c> represents the message's server time.
+        /// The message's server time.
         /// </summary>
         public TimeSpan ServerTime
         {
@@ -140,7 +140,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>BidQuantity</c> represents the message's bid quantity.
+        /// The message's bid quantity.
         /// </summary>
         public int BidQuantity
         {
@@ -151,7 +151,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>BidPrice</c> represents the message's bid price.
+        /// The message's bid price.
         /// </summary>
         public int BidPrice
         {
@@ -162,7 +162,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>BidTime</c> represents the message's bid time.
+        /// The message's bid time.
         /// </summary>
         public DateTime BidTime
         {
@@ -173,7 +173,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>ProcessedCount</c> represents the message's processed count.
+        /// The message's processed count.
         /// </summary>
         public int ProcessedCount
         {
@@ -184,7 +184,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>PendingCount</c> represents the message's pending count.
+        /// The message's pending count.
         /// </summary>
         public int PendingCount
         {
@@ -195,12 +195,12 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>PriceUpperBound</c> represents the message's price upper bound.
+        /// The message's price upper bound.
         /// </summary>
         public abstract int PriceUpperBound { get; }
 
         /// <summary>
-        /// Property <c>PriceLowerBound</c> represents the message's price upper bound.
+        /// The message's price upper bound.
         /// </summary>
         public abstract int PriceLowerBound { get; }
     }

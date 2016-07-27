@@ -1,7 +1,7 @@
 ﻿namespace BidMessages
 {
     /// <summary>
-    /// Enumeration <c>AuctionSessions</c> represents supported sessions of quote messages.
+    /// Represents supported sessions of quote messages.
     /// </summary>
     public enum AuctionSessions
     {

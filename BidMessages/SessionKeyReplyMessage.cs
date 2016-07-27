@@ -3,14 +3,14 @@
 namespace BidMessages
 {
     /// <summary>
-    /// Class <c>SessionKeyReplyMessage</c> models the server's response to a <c>SessionKeyRequestMessage</c>.
+    /// Models the server's response to a <c>SessionKeyRequestMessage</c>.
     /// </summary>
     public class SessionKeyReplyMessage : ControlReplyMessage
     {
         private uint m_sessionKey;
 
         /// <summary>
-        /// This constructor initializes a new instance of the <c>SessionKeyReplyMessage</c> class with the given byte array.
+        /// Initializes a new instance of the <c>SessionKeyReplyMessage</c> class with the given byte array.
         /// </summary>
         /// <param name="message">the byte array representation of this message.</param>
         /// <param name="offset">the position where message begins.</param>
@@ -38,7 +38,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>Function</c> represents the message's function code.
+        /// The message's function code.
         /// </summary>
         public override FunctionCodes Function
         {
@@ -49,7 +49,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>SessionKey</c> represents the message's content: session key.
+        /// The message's content: session key.
         /// </summary>
         public uint SessionKey
         {
@@ -57,7 +57,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method encodes the body of a <c>SessionKeyReplyMessage</c> object into the target byte array.
+        /// Encodes the body of a <c>SessionKeyReplyMessage</c> object into the target byte array.
         /// </summary>
         /// <param name="target">the target byte array.</param>
         /// <param name="offset">the position to start writing.</param>
@@ -70,7 +70,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method gets a string representation for the specified <c>SessionKeyReplyMessage</c> instance.
+        /// Gets a string representation for the specified <c>SessionKeyReplyMessage</c> instance.
         /// </summary>
         /// <returns>A string that contains the message type and session key.</returns>
         public override string ToString()

@@ -3,14 +3,14 @@
 namespace BidMessages
 {
     /// <summary>
-    /// Class <c>LoginReplyMessage</c> models the server's response to a <c>LoginRequestMessage</c>.
+    /// Models the server's response to a <c>LoginRequestMessage</c>.
     /// </summary>
     public class LoginReplyMessage : ControlReplyMessage
     {
         private int m_maxHeartbeatInterval;
 
         /// <summary>
-        /// This constructor initializes a new instance of the <c>LoginReply</c> class with its corresponding byte array.
+        ///Initializes a new instance of the <c>LoginReply</c> class with its corresponding byte array.
         /// </summary>
         /// <param name="message">the byte array representation of this message.</param>
         /// <param name="offset">the position where message begins.</param>
@@ -39,7 +39,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>Function</c> represents the message's function code.
+        /// The message's function code.
         /// </summary>
         public override FunctionCodes Function
         {
@@ -50,7 +50,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>MaxHeartbeatInterval</c> represents the max heartbeat interval sent in login reply.
+        /// The max heartbeat interval sent in login reply.
         /// </summary>
         public int MaxHeartbeatInterval
         {
@@ -58,7 +58,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method encodes the body of a <c>LoginReplyMessage</c> object into the target byte array.
+        /// Encodes the body of a <c>LoginReplyMessage</c> object into the target byte array.
         /// </summary>
         /// <param name="bytes">the target byte array.</param>
         /// <param name="offset">the position to start writing.</param>
@@ -71,7 +71,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method gets a string representation for the specified <c>LoginReplyMessage</c> instance.
+        /// Gets a string representation for the specified <c>LoginReplyMessage</c> instance.
         /// </summary>
         /// <returns>A string that contains the message type and the max heartbeat interval.</returns>
         public override string ToString()

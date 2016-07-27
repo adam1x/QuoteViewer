@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace BidMessages
 {
     /// <summary>
-    /// Class <c>LoginRequestMessage</c> models the login request sent to server.
+    /// Models the login request sent to server.
     /// </summary>
     public class LoginRequestMessage : ControlRequestMessage
     {
@@ -13,7 +13,7 @@ namespace BidMessages
         private string m_verificatonCode;
 
         /// <summary>
-        /// This constructor initializes a new instance of the <c>LoginRequest</c> class with the given verification code.
+        /// Initializes a new instance of the <c>LoginRequest</c> class with the given verification code.
         /// </summary>
         /// <param name="username">the username for the remote server.</param>
         /// <param name="password">the password to the account.</param>
@@ -25,7 +25,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>Function</c> represents the message's function code.
+        /// The message's function code.
         /// </summary>
         public override FunctionCodes Function
         {
@@ -36,7 +36,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// Property <c>VerificationCode</c> represents the verification code used in login request.
+        /// The verification code used in login request.
         /// </summary>
         public string VerificationCode
         {
@@ -44,7 +44,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method creates a verification code with the given username, password, and session key.
+        /// Creates a verification code with the given username, password, and session key.
         /// </summary>
         /// <param name="sessionKey">the session key used to create the verification code.</param>
         /// <returns>The verification code.</returns>
@@ -70,7 +70,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method encodes the body of a <c>LoginRequestMessage</c> object into the target byte array.
+        /// Encodes the body of a <c>LoginRequestMessage</c> object into the target byte array.
         /// </summary>
         /// <param name="target">the target byte array.</param>
         /// <param name="offset">the position to start writing.</param>
@@ -91,7 +91,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method gets a string representation for the specified <c>LoginRequestMessage</c> instance.
+        /// Gets a string representation for the specified <c>LoginRequestMessage</c> instance.
         /// </summary>
         /// <returns>A string that contains the message type and verificaton code.</returns>
         public override string ToString()

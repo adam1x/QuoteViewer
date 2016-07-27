@@ -7,22 +7,25 @@ using QuoteProviders;
 namespace ConsoleViewer
 {
     /// <summary>
-    /// Class <c>Viewer</c> models a console application that displays quote data.
+    /// Mdels a console application that displays quote data.
     /// </summary>
     class Viewer : IQuoteDataListener
     {
         /// <summary>
-        /// This field represents the previously received message.
+        /// The previously received message.
         /// </summary>
         private QuoteMessage m_prevMessage;
 
+        /// <summary>
+        /// Initializes a new instance of the <c>ConsoleViewer</c> class.
+        /// </summary>
         public Viewer()
         {
             m_prevMessage = null;
         }
 
         /// <summary>
-        /// Property <c>Listener</c> represents the listener's name.
+        /// The listener's name.
         /// </summary>
         public string ListenerName
         {
@@ -30,7 +33,7 @@ namespace ConsoleViewer
         }
 
         /// <summary>
-        /// This method is used to start displaying.
+        /// Start displaying.
         /// </summary>
         public void Run()
         {
@@ -98,7 +101,7 @@ namespace ConsoleViewer
         }
 
         /// <summary>
-        /// This method displays the received <c>QuoteMessage</c> object in a console window.
+        /// Displays the received <c>QuoteMessage</c> object in a console window.
         /// </summary>
         /// <param name="message">the received <c>QuoteMessage</c> object.</param>
         public void OnQuoteMessageReceived(QuoteMessage message)
@@ -173,7 +176,7 @@ namespace ConsoleViewer
         }
 
         /// <summary>
-        /// This method is an event handler for status change. It prints out notifications.
+        /// Event handler for status change. It prints out notifications.
         /// </summary>
         /// <param name="ev">the event args that contains the data of this event.</param>
         public void parser_StatusChanged(object sender, StatusChangedEventArgs ev)
@@ -192,7 +195,7 @@ namespace ConsoleViewer
         }
 
         /// <summary>
-        /// This method prints out the received error.
+        /// Prints out the received error.
         /// </summary>
         /// <param name="ex">the error.</param>
         /// <param name="severe">the severity of this error: true means needs to abort; false means can try to recover.</param>

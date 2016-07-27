@@ -6,35 +6,35 @@ using System.Diagnostics;
 namespace BidMessages
 {
     /// <summary>
-    /// Class <c>BidMessage</c> models messages involved in bid.
+    /// Models messages involved in bid.
     /// </summary>
     public abstract class BidMessage
     {
         /// <summary>
-        /// This field represents the length of a message header.
+        /// The length of a message header.
         /// </summary>
         public static readonly int HeaderLength = sizeof(int) * 2 + sizeof(ushort);
         
         /// <summary>
-        /// This field represents the text encoding scheme used in a message.
+        /// The text encoding scheme used in a message.
         /// </summary>
         public static readonly Encoding TextEncoding = Encoding.UTF8;
 
         /// <summary>
-        /// This constructor initializes a new instance of the <c>BidMessage</c> class.
+        /// Initializes a new instance of the <c>BidMessage</c> class.
         /// </summary>
         public BidMessage()
         {
         }
 
         /// <summary>
-        /// Property <c>Function</c> represents the message's function code.
+        /// Represents the message's function code.
         /// </summary>
         public abstract FunctionCodes Function { get; }
 
         #region Factory methods
         /// <summary>
-        /// This factory method creates a <c>BidMessage</c> object with its encoding in a byte array.
+        /// Creates a <c>BidMessage</c> object with its encoding in a byte array.
         /// </summary>
         /// <param name="function">the message's function code.</param>
         /// <param name="message">the message encoded in a byte array.</param>
@@ -67,7 +67,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This factory method creates a <c>QuoteMessage</c> object with its encoding in a byte array.
+        /// Creates a <c>QuoteMessage</c> object with its encoding in a byte array.
         /// </summary>
         /// <param name="message">the message encoded in a byte array.</param>
         /// <param name="startIndex">the start index in the byte array.</param>
@@ -121,31 +121,31 @@ namespace BidMessages
 
         #region Serialize
         /// <summary>
-        /// This method serializes this <c>BidMessage</c> object into a byte array.
+        /// Serializes this <c>BidMessage</c> object into a byte array.
         /// </summary>
         /// <param name="target">the target byte array.</param>
-        /// <param name="startIndex">the index to start writing.</param>
+        /// <param name="offset">the index to start writing.</param>
         /// <returns>The number of bytes written into the array.</returns>
-        public int GetBytes(byte[] target, int startIndex)
+        public int GetBytes(byte[] target, int offset)
         {
-            int bodyLength = GetBodyBytes(target, startIndex + HeaderLength);
+            int bodyLength = GetBodyBytes(target, offset + HeaderLength);
             int length = bodyLength + HeaderLength;
 
-            IPAddress.HostToNetworkOrder(length).GetBytes(target, startIndex);
-            startIndex += sizeof(int);
+            IPAddress.HostToNetworkOrder(length).GetBytes(target, offset);
+            offset += sizeof(int);
 
-            Bytes.HostToNetworkOrder((ushort)Function).GetBytes(target, startIndex);
-            startIndex += sizeof(ushort);
+            Bytes.HostToNetworkOrder((ushort)Function).GetBytes(target, offset);
+            offset += sizeof(ushort);
 
-            IPAddress.HostToNetworkOrder(bodyLength).GetBytes(target, startIndex);
-            startIndex += sizeof(int);
-            Debug.Assert(startIndex == HeaderLength);
+            IPAddress.HostToNetworkOrder(bodyLength).GetBytes(target, offset);
+            offset += sizeof(int);
+            Debug.Assert(offset == HeaderLength);
 
             return length;
         }
 
         /// <summary>
-        /// This method serializes this <c>BidMessage</c> object into a byte array.
+        /// Serializes this <c>BidMessage</c> object into a byte array.
         /// </summary>
         /// <returns>The output array.</returns>
         public byte[] GetBytes()
@@ -156,7 +156,7 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// This method encodes the body of a <c>BidMessage</c> object into the target byte array.
+        /// Encodes the body of a <c>BidMessage</c> object into the target byte array.
         /// </summary>
         /// <param name="target">the target byte array.</param>
         /// <param name="offset">the position to start writing.</param>
@@ -171,7 +171,7 @@ namespace BidMessages
         #endregion
 
         /// <summary>
-        /// This method peeks at a message's function code.
+        /// Peeks at a message's function code.
         /// </summary>
         /// <param name="message">the message in a byte array.</param>
         /// <param name="offset">the position where message begins.</param>

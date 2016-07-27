@@ -6,12 +6,12 @@ using BidMessages;
 namespace TestViewer
 {
     /// <summary>
-    /// Class <c>TestViewer</c> is a test for <c>BidMessages</c>.
+    /// A test for <c>BidMessages</c>.
     /// </summary>
     class TestViewer
     {
         /// <summary>
-        /// This method is the entry point of <c>TestViewer</c>.
+        /// Entry point.
         /// </summary>
         public static void Main()
         {
@@ -32,7 +32,7 @@ namespace TestViewer
         }
 
         /// <summary>
-        /// This method prints a <c>QuoteMessage</c>.
+        /// Prints a <c>QuoteMessage</c>.
         /// </summary>
         /// <param name="msg">the <c>QuoteMessage</c> object to be printed.</param>
         private static void PrintQuoteMessage(QuoteMessage msg)
