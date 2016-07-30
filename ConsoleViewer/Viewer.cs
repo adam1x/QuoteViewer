@@ -14,14 +14,14 @@ namespace ConsoleViewer
         /// <summary>
         /// The previously received message.
         /// </summary>
-        private QuoteMessage m_prevMessage;
+        private QuoteMessage m_previousMessage;
 
         /// <summary>
         /// Initializes a new instance of the <c>ConsoleViewer</c> class.
         /// </summary>
         public Viewer()
         {
-            m_prevMessage = null;
+            m_previousMessage = null;
         }
 
         /// <summary>
@@ -106,14 +106,14 @@ namespace ConsoleViewer
         /// <param name="message">the received <c>QuoteMessage</c> object.</param>
         public void OnQuoteMessageReceived(QuoteMessage message)
         {
-            if ((object)m_prevMessage != null && !(message > m_prevMessage))
+            if ((object)m_previousMessage != null && !(message > m_previousMessage))
             {
                 return;
             }
 
             Console.WriteLine("Message:");
             Console.WriteLine("--Update timestamp: {0}", message.GetFieldValueAsDateTime(message.GetIndexFromTag(QuoteFieldTags.UpdateTimestamp)));
-            Console.WriteLine("--Auction session: {0}", message.GetFieldValueAsAuctionSessions());
+            Console.WriteLine("--Auction session: {0}", message.AuctionSession);
 
             if (message is QuoteDataMessage)
             {
@@ -181,8 +181,8 @@ namespace ConsoleViewer
         /// <param name="ev">the event args that contains the data of this event.</param>
         public void parser_StatusChanged(object sender, StatusChangedEventArgs ev)
         {
-            QuoteProviderStatus previous = ev.Previous;
-            QuoteProviderStatus next = ev.Next;
+            QuoteProviderStatus previous = ev.Old;
+            QuoteProviderStatus next = ev.New;
 
             if (previous != QuoteProviderStatus.Inactive && next == QuoteProviderStatus.Open)
             {

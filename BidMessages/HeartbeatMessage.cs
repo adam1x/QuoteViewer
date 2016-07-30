@@ -1,4 +1,6 @@
-﻿namespace BidMessages
+﻿using System;
+
+namespace BidMessages
 {
     /// <summary>
     /// Models heartbeat messages sent to the remote server.
@@ -11,8 +13,14 @@
         /// Initializes a new instance of the <c>HeartbeatMessage</c> class with the given username.
         /// </summary>
         /// <param name="username">the username of current user.</param>
+        /// <exception cref="System.ArgumentNullException">The specified username is null.</exception>
         public HeartbeatMessage(string username)
         {
+            if (username == null)
+            {
+                throw new ArgumentNullException("username is null.");
+            }
+
             m_username = username;
         }
 

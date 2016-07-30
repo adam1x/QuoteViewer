@@ -77,14 +77,19 @@ namespace BidMessages
         /// <param name="value">the int value to be converted.</param>
         /// <param name="target">the target byte array.</param>
         /// <param name="offset">the index at which this method writes.</param>
-        public static void GetBytes(this int value, byte[] target, int offset)
+        /// <returns>The number of bytes written.</returns>
+        public static int GetBytes(this int value, byte[] target, int offset)
         {
             int temp = value;
-            for (int i = 0; i < sizeof(int); i++)
+            int i;
+
+            for (i = 0; i < sizeof(int); i++)
             {
                 target[offset + i] = (byte)(temp & 0xFF);
                 temp >>= 8;
             }
+
+            return i;
         }
 
         /// <summary>
@@ -93,14 +98,19 @@ namespace BidMessages
         /// <param name="value">the uint value to be converted.</param>
         /// <param name="target">the target byte array.</param>
         /// <param name="offset">the index at which this method writes.</param>
-        public static void GetBytes(this uint value, byte[] target, int offset)
+        /// <returns>The number of bytes written.</returns>
+        public static int GetBytes(this uint value, byte[] target, int offset)
         {
             uint temp = value;
-            for (int i = 0; i < sizeof(uint); i++)
+            int i;
+
+            for (i = 0; i < sizeof(uint); i++)
             {
                 target[offset + i] = (byte)(temp & 0xFF);
                 temp >>= 8;
             }
+
+            return i;
         }
 
         /// <summary>
@@ -109,14 +119,19 @@ namespace BidMessages
         /// <param name="value">the ushort value to be converted.</param>
         /// <param name="target">the target byte array.</param>
         /// <param name="offset">the index at which this method writes.</param>
-        public static void GetBytes(this ushort value, byte[] target, int offset)
+        /// <returns>The number of bytes written.</returns>
+        public static int GetBytes(this ushort value, byte[] target, int offset)
         {
             int temp = value;
-            for (int i = 0; i < sizeof(ushort); i++)
+            int i;
+
+            for (i = 0; i < sizeof(ushort); i++)
             {
                 target[offset + i] = (byte)(temp & 0xFF);
                 temp >>= 8;
             }
+
+            return i;
         }
     }
 }

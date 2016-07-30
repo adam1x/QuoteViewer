@@ -5,39 +5,39 @@
     /// </summary>
     public class StatusChangedEventArgs
     {
-        private QuoteProviderStatus m_previous;
-        private QuoteProviderStatus m_next;
+        private QuoteProviderStatus m_old;
+        private QuoteProviderStatus m_new;
 
         /// <summary>
         /// Initializes a new instance of the <c>StatusChangedEventArgs</c> class with the given previous and next status.
         /// </summary>
-        /// <param name="previous"></param>
-        /// <param name="next"></param>
-        public StatusChangedEventArgs(QuoteProviderStatus previous, QuoteProviderStatus next)
+        /// <param name="old"></param>
+        /// <param name="current"></param>
+        public StatusChangedEventArgs(QuoteProviderStatus old, QuoteProviderStatus current)
         {
-            m_previous = previous;
-            m_next = next;
+            m_old = old;
+            m_new = current;
         }
 
         /// <summary>
         /// The previous status before change.
         /// </summary>
-        public QuoteProviderStatus Previous
+        public QuoteProviderStatus Old
         {
             get
             {
-                return m_previous;
+                return m_old;
             }
         }
 
         /// <summary>
         /// The next status after change.
         /// </summary>
-        public QuoteProviderStatus Next
+        public QuoteProviderStatus New
         {
             get
             {
-                return m_next;
+                return m_new;
             }
         }
     }

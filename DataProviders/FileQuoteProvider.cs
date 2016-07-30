@@ -12,7 +12,7 @@ namespace QuoteProviders
     public class FileQuoteProvider : QuoteDataProvider
     {
         private string m_filePath;
-        private FileStream m_fs;
+        private FileStream m_stream;
         private BinaryReader m_reader;
 
         /// <summary>
@@ -20,10 +20,18 @@ namespace QuoteProviders
         /// and sets its state to <c>Open</c>.
         /// </summary>
         /// <param name="filePath">the path to the local file containing quote data.</param>
+        /// <exception cref="System.ArgumentNullException">The input filePath is null or empty.</exception>
         public FileQuoteProvider(string filePath)
         {
+            if (string.IsNullOrEmpty(filePath))
+            {
+                throw new ArgumentNullException("filePath cannot be null or empty.");
+            }
+
             m_filePath = filePath;
-            m_state = Open;
+            m_stream = null;
+            m_reader = null;
+            m_runByState = Open;
         }
 
         /// <summary>
@@ -38,20 +46,21 @@ namespace QuoteProviders
         /// Opens the target file for read.
         /// Goes to states <c>Read</c> and <c>Close</c>.
         /// </summary>
+        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
         private int Open()
         {
             ChangeStatus(QuoteProviderStatus.Open);
 
             try
             {
-                m_fs = new FileStream(m_filePath, FileMode.Open, FileAccess.Read);
-                m_reader = new BinaryReader(m_fs);
-                m_state = Read;
+                m_stream = new FileStream(m_filePath, FileMode.Open, FileAccess.Read);
+                m_reader = new BinaryReader(m_stream);
+                m_runByState = Read;
             }
             catch (Exception ex)
             {
                 OnErrorOccurred(ex, true);
-                m_state = Close;
+                m_runByState = Close;
             }
 
             return 0;
@@ -61,25 +70,26 @@ namespace QuoteProviders
         /// Reads the opened file and parses its content.
         /// Goes to states <c>Read</c> and <c>Close</c>.
         /// </summary>
+        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
         private int Read()
         {
             ChangeStatus(QuoteProviderStatus.Read);
 
             try
             {
-                if (m_fs.Position == m_fs.Length)
+                if (m_stream.Position == m_stream.Length)
                 {
-                    m_state = Close;
+                    m_runByState = Close;
                     return 0;
                 }
 
                 QuoteMessage msg = ParseQuote();
-                OnMessageParsed(msg);
+                OnQuoteMessageReceived(msg);
             }
             catch (Exception ex)
             {
                 OnErrorOccurred(ex, true);
-                m_state = Close;
+                m_runByState = Close;
             }
 
             return 0;
@@ -87,7 +97,9 @@ namespace QuoteProviders
 
         /// <summary>
         /// Closes the file.
+        /// Goes to state <c>Idle</c>.
         /// </summary>
+        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
         private int Close()
         {
             ChangeStatus(QuoteProviderStatus.Close);
@@ -97,13 +109,14 @@ namespace QuoteProviders
                 m_reader.Close();
             }
 
-            if (m_fs != null)
+            if (m_stream != null)
             {
-                m_fs.Close();
+                m_stream.Close();
             }
 
-            m_state = null;
+            m_runByState = Idle;
             ChangeStatus(QuoteProviderStatus.Inactive);
+
             return 0;
         }
 
@@ -118,9 +131,10 @@ namespace QuoteProviders
             ushort funcCode = Bytes.NetworkToHostOrder(m_reader.ReadUInt16());
             int bodyLength = IPAddress.NetworkToHostOrder(m_reader.ReadInt32());
 
-            byte[] body = m_reader.ReadBytes(bodyLength);
+            byte[] body = new byte[BidMessage.HeaderLength + bodyLength];
+            m_reader.Read(body, BidMessage.HeaderLength + 1, bodyLength);
 
-            return (QuoteMessage)BidMessage.Create(FunctionCodes.Quote, body, -BidMessage.HeaderLength, length);
+            return (QuoteMessage)BidMessage.Create(FunctionCodes.Quote, body, 0, length);
         }
     }
 }

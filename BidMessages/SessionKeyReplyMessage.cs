@@ -15,25 +15,26 @@ namespace BidMessages
         /// <param name="message">the byte array representation of this message.</param>
         /// <param name="offset">the position where message begins.</param>
         /// <exception cref="System.ArgumentNullException">The input byte array is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The input byte array is not long enough.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The input offset is out of range.</exception>
         /// <exception cref="System.ArgumentException">The input byte array does not represent a session key reply message.</exception>
         public SessionKeyReplyMessage(byte[] message, int offset)
             : base(message, offset)
         {
-            if (message == null)
+            if (message == null || message.Length <= 0)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("message cannot be null or empty.");
             }
 
-            if (message.Length - offset < HeaderLength + sizeof(int))
+            if (offset < 0 || message.Length - offset < HeaderLength + sizeof(int))
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException("offset out of range.");
             }
 
             if (PeekFunctionCode(message, offset) != Function)
             {
                 throw new ArgumentException("Function code mismatch.");
             }
+
             m_sessionKey = message.ToUInt32(offset + HeaderLength);
         }
 
@@ -49,11 +50,14 @@ namespace BidMessages
         }
 
         /// <summary>
-        /// The message's content: session key.
+        /// The message's session key.
         /// </summary>
         public uint SessionKey
         {
-            get { return m_sessionKey; }
+            get
+            {
+                return m_sessionKey;
+            }
         }
 
         /// <summary>
@@ -65,8 +69,7 @@ namespace BidMessages
         protected override int GetBodyBytes(byte[] target, int offset)
         {
             uint body = m_sessionKey;
-            body.GetBytes(target, offset);
-            return sizeof(int);
+            return body.GetBytes(target, offset);
         }
 
         /// <summary>
@@ -75,7 +78,7 @@ namespace BidMessages
         /// <returns>A string that contains the message type and session key.</returns>
         public override string ToString()
         {
-            return string.Format("{0}<{1}>", GetType().Name, m_sessionKey);
+            return string.Format("{0}<0x{1:x8}>", GetType().Name, m_sessionKey);
         }
     }
 }

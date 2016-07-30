@@ -13,13 +13,14 @@ namespace BidMessages
         /// Initializes a new instance of the <c>SessionKeyRequestMessage</c> class with the given username.
         /// </summary>
         /// <param name="username">the username used in the session key request.</param>
-        /// <exception cref="System.ArgumentNullException">The input byte array is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The input username is null.</exception>
         public SessionKeyRequestMessage(string username)
         {
             if (username == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("username cannot be null.");
             }
+
             m_username = username;
         }
 
@@ -39,7 +40,10 @@ namespace BidMessages
         /// </summary>
         public string Username
         {
-            get { return m_username; }
+            get
+            {
+                return m_username;
+            }
         }
 
         /// <summary>

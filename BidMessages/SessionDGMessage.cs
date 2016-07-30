@@ -1,4 +1,6 @@
-﻿namespace BidMessages
+﻿using System.Diagnostics;
+
+namespace BidMessages
 {
     /// <summary>
     /// Models <c>QuoteMessage</c>s of Sessions D and G.
@@ -63,6 +65,7 @@
                     return 4;
 
                 default:
+                    Debug.Assert(false, "Unsupported tag.");
                     return -1;
             }
         }

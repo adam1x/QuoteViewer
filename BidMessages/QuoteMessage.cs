@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
+using System.Diagnostics;
 
 namespace BidMessages
 {
@@ -34,23 +34,26 @@ namespace BidMessages
         /// <param name="message">the byte array that contains this <c>QuoteMessage</c>.</param>
         /// <param name="offset">the position where message begins.</param>
         /// <param name="count">the length of this message in bytes.</param>
-        /// <exception cref="System.ArgumentNullException">The input byte array is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The input byte array is not long enough.</exception>
+        /// <exception cref="System.ArgumentNullException">The input byte array is null or empty.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The input offset or count is out of range.</exception>
         public QuoteMessage(byte[] message, int offset, int count)
         {
-            if (message == null)
-            {
-                throw new ArgumentNullException();
-            }
-
-            if (message.Length - offset < count)
-            {
-                throw new ArgumentOutOfRangeException();
-            }
+            if (message == null || message.Length <= 0)
+ 			{
+ 				throw new ArgumentNullException("message cannot be null or empty.");
+ 			}
+ 			if (offset < 0 || count <= MinLength || message.Length - offset < count)
+ 			{
+ 				throw new ArgumentOutOfRangeException("offset or count out of range.");
+ 			}
 
             m_bodyLength = count - HeaderLength;
+
             string bodyString = TextEncoding.GetString(message, offset + HeaderLength, m_bodyLength);
+            Debug.Assert(!string.IsNullOrEmpty(bodyString));
+
             m_fields = bodyString.Split(',');
+            Debug.Assert(m_fields.Length > 0);
         }
 
         /// <summary>
@@ -122,20 +125,16 @@ namespace BidMessages
         /// <exception cref="System.FormatException">The field cannot be parsed as an Int32 value.</exception>
         public int GetFieldValueAsInt32(int index, int defaultValue = 0)
         {
-            string raw;
-            raw = GetFieldValueAsString(index);
-            if (string.IsNullOrEmpty(raw))
+            int result = defaultValue;
+
+            string raw = GetFieldValueAsString(index);
+            if (!string.IsNullOrEmpty(raw) && 
+                !int.TryParse(raw, out result))
             {
-                return defaultValue;
+                throw new FormatException("This field is not in a correct format.");
             }
 
-            int result;
-            if (int.TryParse(raw, out result))
-            {
-                return result;
-            }
-
-            throw new FormatException();
+            return result;
         }
 
         /// <summary>
@@ -168,20 +167,16 @@ namespace BidMessages
         /// <exception cref="System.FormatException">The field cannot be parsed as an DateTime value.</exception>
         public DateTime GetFieldValueAsDateTime(int index, DateTime defaultValue)
         {
-            string raw;
-            raw = GetFieldValueAsString(index);
-            if (string.IsNullOrEmpty(raw))
+            DateTime result = defaultValue;
+
+            string raw = GetFieldValueAsString(index);
+            if (!string.IsNullOrEmpty(raw) ||
+                !DateTime.TryParseExact(GetFieldValueAsString(index), "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
             {
-                return defaultValue;
+                throw new FormatException("This field is not in a correct format.");
             }
 
-            DateTime result;
-            if (DateTime.TryParseExact(GetFieldValueAsString(index), "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
-            {
-                return result;
-            }
-
-            throw new FormatException();
+            return result;
         }
 
         /// <summary>
@@ -224,19 +219,16 @@ namespace BidMessages
         /// <exception cref="System.FormatException">The field cannot be parsed as an TimeSpan value.</exception>
         public TimeSpan GetFieldValueAsTimeSpan(int index, TimeSpan defaultValue)
         {
-            string raw;
-            raw = GetFieldValueAsString(index);
-            if (string.IsNullOrEmpty(raw))
+            TimeSpan result = defaultValue;
+
+            string raw = GetFieldValueAsString(index);
+            if (!string.IsNullOrEmpty(raw) ||
+                !TimeSpan.TryParseExact(GetFieldValueAsString(index), "g", CultureInfo.InvariantCulture, out result))
             {
-                return defaultValue;
+                throw new FormatException("This field is not in a correct format.");
             }
 
-            TimeSpan result;
-            if (TimeSpan.TryParseExact(GetFieldValueAsString(index), "g", CultureInfo.InvariantCulture, out result))
-            {
-                return result;
-            }
-            return defaultValue;
+            return result;
         }
 
         /// <summary>
@@ -247,15 +239,6 @@ namespace BidMessages
         public TimeSpan GetFieldValueAsTimeSpan(int index)
         {
             return GetFieldValueAsTimeSpan(index, TimeSpan.Zero);
-        }
-
-        /// <summary>
-        /// Extracts an <c>AuctionSessions</c> value out of this message's fields.
-        /// </summary>
-        /// <returns>The <c>AuctionSessions</c> value parsed from the field.</returns>
-        public AuctionSessions GetFieldValueAsAuctionSessions()
-        {
-            return (AuctionSessions)GetFieldValueAsString(GetIndexFromTag(QuoteFieldTags.AuctionSession))[0];
         }
 
         /// <summary>
@@ -273,7 +256,6 @@ namespace BidMessages
         /// </summary>
         /// <param name="index">the index in fields.</param>
         /// <returns>The string in the field.</returns>
-        /// <exception cref="System.IndexOutOfRangeException">Out of range array access.</exception>
         public string GetFieldValueAsString(int index)
         {
             if (index < 0 || index >= m_fields.Length)
@@ -304,7 +286,7 @@ namespace BidMessages
             const int offset = 25; // offset from start to session
             if (message[startIndex + offset - 1] != (byte)',' || message[startIndex + offset + 1] != (byte)',')
             {
-            	throw new FormatException();
+            	throw new FormatException("message is not correctly formatted.");
             }
 
             switch (message[startIndex + offset])
@@ -365,7 +347,7 @@ namespace BidMessages
         /// <returns>A string that contains the message type and update time.</returns>
         public override string ToString()
         {
-            return string.Format("{0}<{1}>", GetType().Name, UpdateTimestamp);
+            return string.Format("{0}<{1}>", GetType().Name, UpdateTimestamp.ToString("yyyyMMddHHmmss"));
         }
 
         #region Message Comparison
@@ -405,8 +387,8 @@ namespace BidMessages
                 return -1;
             }
 
-            AuctionSessions session1 = m1.GetFieldValueAsAuctionSessions();
-            AuctionSessions session2 = m2.GetFieldValueAsAuctionSessions();
+            AuctionSessions session1 = m1.AuctionSession;
+            AuctionSessions session2 = m2.AuctionSession;
             int sessionComparison = CompareSession(session1, session2);
             if (sessionComparison != 0)
             {

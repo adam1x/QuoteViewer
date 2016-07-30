@@ -24,7 +24,7 @@ namespace QuoteProviders
         /// <summary>
         /// The state the provider is in.
         /// </summary>
-        protected RunByState m_state;
+        protected RunByState m_runByState;
 
         /// <summary>
         /// The provider's status.
@@ -41,8 +41,9 @@ namespace QuoteProviders
         /// </summary>
         public QuoteDataProvider()
         {
-            m_listeners = new List<IQuoteDataListener>();
+            m_runByState = Idle;
             m_status = QuoteProviderStatus.Inactive;
+            m_listeners = new List<IQuoteDataListener>();
         }
 
         /// <summary>
@@ -64,28 +65,43 @@ namespace QuoteProviders
         /// <summary>
         /// Runs a quote data provider.
         /// </summary>
-        /// <returns>Time to sleep in milliseconds till executing next state.</returns>
+        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
         public int Run()
         {
-            return m_state();
+            return m_runByState();
+        }
+
+        /// <summary>
+        /// The inactive state.
+        /// </summary>
+        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
+        protected int Idle()
+        {
+            return 10;
         }
 
         /// <summary>
         /// Changes the status of a quote data provider and notifies listeners.
         /// </summary>
-        /// <param name="next">the status to change to.</param>
-        protected void ChangeStatus(QuoteProviderStatus next)
+        /// <param name="current">the status to change to.</param>
+        protected void ChangeStatus(QuoteProviderStatus current)
         {
-            OnStatusChanged(new StatusChangedEventArgs(m_status, next));
-            m_status = next;
+            OnStatusChanged(new StatusChangedEventArgs(m_status, current));
+            m_status = current;
         }
 
         /// <summary>
         /// Adds a listener to the parser's subscribers list.
         /// </summary>
         /// <param name="listener">the listener to be added.</param>
+        /// <exception cref="System.ArgumentNullException">The input listener is null.</exception>
         public void Subscribe(IQuoteDataListener listener)
         {
+            if (listener == null)
+            {
+                throw new ArgumentNullException("listener cannot be null.");
+            }
+
             if (!m_listeners.Contains(listener))
             {
                 m_listeners.Add(listener);
@@ -96,8 +112,14 @@ namespace QuoteProviders
         /// Removes a listener from the parser's subscribers list.
         /// </summary>
         /// <param name="listener">the listener to be removed.</param>
+        /// <exception cref="System.ArgumentNullException">The input listener is null.</exception>
         public void Unsubscribe(IQuoteDataListener listener)
         {
+            if (listener == null)
+            {
+                throw new ArgumentNullException("listener cannot be null.");
+            }
+
             if (m_listeners.Contains(listener))
             {
                 m_listeners.Remove(listener);
@@ -105,10 +127,10 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// Notifies all listeners that a <c>QuoteMessage</c> object has been successfully parsed.
+        /// Notifies all listeners that a <c>QuoteMessage</c> object has been successfully received.
         /// </summary>
-        /// <param name="message">the <c>QuoteMessage</c> object that has just been parsed.</param>
-        protected void OnMessageParsed(QuoteMessage message)
+        /// <param name="message">the <c>QuoteMessage</c> object that has just been received.</param>
+        protected void OnQuoteMessageReceived(QuoteMessage message)
         {
             foreach (IQuoteDataListener listener in m_listeners)
             {
@@ -146,13 +168,13 @@ namespace QuoteProviders
         /// <summary>
         /// Notifies all event handlers to consume the raised event.
         /// </summary>
-        /// <param name="ev">the raised event.</param>
-        protected virtual void OnStatusChanged(StatusChangedEventArgs ev)
+        /// <param name="e">the raised event.</param>
+        protected virtual void OnStatusChanged(StatusChangedEventArgs e)
         {
             EventHandler<StatusChangedEventArgs> handler = StatusChanged;
             if (handler != null)
             {
-                handler(this, ev);
+                handler(this, e);
             }
         }
     }

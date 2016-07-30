@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace BidMessages
 {
@@ -15,19 +16,19 @@ namespace BidMessages
         /// <param name="message">the byte array representation of this message.</param>
         /// <param name="offset">the position where message begins.</param>
         /// <exception cref="System.ArgumentNullException">The input byte array is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The input byte array is not long enough.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The input offset is out of range.</exception>
         /// <exception cref="System.ArgumentException">The input byte array does not represent a login reply message.</exception>
         public LoginReplyMessage(byte[] message, int offset)
             : base(message, offset)
         {
-            if (message == null)
+            if (message == null || message.Length <= 0)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("message cannot be null or empty.");
             }
 
-            if (message.Length - offset < HeaderLength + sizeof(int))
+            if (offset < 0 || message.Length - offset < HeaderLength + sizeof(int))
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException("offset out of range.");
             }
 
             if (PeekFunctionCode(message, offset) != Function)
@@ -36,6 +37,7 @@ namespace BidMessages
             }
 
             m_maxHeartbeatInterval = message.ToInt32(offset + HeaderLength);
+            Debug.Assert(m_maxHeartbeatInterval >= 0);
         }
 
         /// <summary>
@@ -66,8 +68,7 @@ namespace BidMessages
         protected override int GetBodyBytes(byte[] bytes, int offset)
         {
             int body = m_maxHeartbeatInterval;
-            body.GetBytes(bytes, offset);
-            return sizeof(int);
+            return body.GetBytes(bytes, offset);
         }
 
         /// <summary>

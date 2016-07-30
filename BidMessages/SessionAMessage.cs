@@ -99,9 +99,17 @@ namespace BidMessages
         /// </summary>
         /// <param name="tag">a field tag as defined in <c>QuoteFieldTags</c>.</param>
         /// <returns>The index in the fields array or -1 if the field doesn't exist.</returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">The input tag is out of range.</exception>
         public override int GetIndexFromTag(QuoteFieldTags tag)
         {
-            return m_tagToIndex[(int)tag];
+            int index = (int)tag;
+
+            if (index < 0 || index >= m_tagToIndex.Length)
+            {
+                throw new ArgumentOutOfRangeException("tag out of range.");
+            }
+
+            return m_tagToIndex[index];
         }
     }
 }

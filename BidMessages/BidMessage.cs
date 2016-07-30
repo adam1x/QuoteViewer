@@ -13,7 +13,12 @@ namespace BidMessages
         /// <summary>
         /// The length of a message header.
         /// </summary>
-        public static readonly int HeaderLength = sizeof(int) * 2 + sizeof(ushort);
+        public const int HeaderLength = sizeof(int) * 2 + sizeof(ushort);
+
+        /// <summary>
+        /// The minimal length of a message.
+        /// </summary>
+        public const int MinLength = HeaderLength + 1;
         
         /// <summary>
         /// The text encoding scheme used in a message.
@@ -38,84 +43,88 @@ namespace BidMessages
         /// </summary>
         /// <param name="function">the message's function code.</param>
         /// <param name="message">the message encoded in a byte array.</param>
-        /// <param name="startIndex">the start index in the byte array.</param>
+        /// <param name="offset">the start index in the byte array.</param>
         /// <param name="count">the actual length of message.</param>
         /// <returns>An initialized <c>BidMessage</c> object.</returns>
         /// <exception cref="System.NotSupportedException"><c>function</c> is not supported or the message is malformed.</exception>
-        public static BidMessage Create(FunctionCodes function, byte[] message, int startIndex, int count)
+        public static BidMessage Create(FunctionCodes function, byte[] message, int offset, int count)
         {
-            BidMessage msg = null;
+            BidMessage result = null;
+
             switch (function)
             {
                 case FunctionCodes.Quote:
-                    msg = CreateQuoteMessage(message, startIndex, count);
+                    result = CreateQuoteMessage(message, offset, count);
                     break;
 
                 case FunctionCodes.SessionKeyReply:
-                    msg = new SessionKeyReplyMessage(message, startIndex);
+                    result = new SessionKeyReplyMessage(message, offset);
                     break;
 
                 case FunctionCodes.LoginReply:
-                    msg = new LoginReplyMessage(message, startIndex);
+                    result = new LoginReplyMessage(message, offset);
                     break;
 
                 default:
                     throw new NotSupportedException("Unsuppoted message function code.");
             }
-            Debug.Assert(msg != null);
-            return msg;
+
+            Debug.Assert(result != null);
+            return result;
         }
 
         /// <summary>
         /// Creates a <c>QuoteMessage</c> object with its encoding in a byte array.
         /// </summary>
         /// <param name="message">the message encoded in a byte array.</param>
-        /// <param name="startIndex">the start index in the byte array.</param>
+        /// <param name="offset">the start index in the byte array.</param>
         /// <param name="count">the actual length of message.</param>
         /// <returns>An initialized <c>QuoteMessage</c> object.</returns>
         /// <exception cref="System.NotSupportedException">The message is of unsupported auction session or malformed.</exception>
-        private static QuoteMessage CreateQuoteMessage(byte[] message, int startIndex, int count)
+        private static QuoteMessage CreateQuoteMessage(byte[] message, int offset, int count)
         {
-            QuoteMessage msg = null;
-            switch (QuoteMessage.PeekSession(message, startIndex))
+            QuoteMessage result = null;
+
+            switch (QuoteMessage.PeekSession(message, offset))
             {
                 case AuctionSessions.SessionA:
-                    msg = new SessionAMessage(message, startIndex, count);
+                    result = new SessionAMessage(message, offset, count);
                     break;
 
                 case AuctionSessions.SessionB:
-                    msg = new SessionBMessage(message, startIndex, count);
+                    result = new SessionBMessage(message, offset, count);
                     break;
 
                 case AuctionSessions.SessionC:
-                    msg = new SessionCMessage(message, startIndex, count);
+                    result = new SessionCMessage(message, offset, count);
                     break;
 
                 case AuctionSessions.SessionD:
-                    msg = new SessionDMessage(message, startIndex, count);
+                    result = new SessionDMessage(message, offset, count);
                     break;
 
                 case AuctionSessions.SessionE:
-                    msg = new SessionEMessage(message, startIndex, count);
+                    result = new SessionEMessage(message, offset, count);
                     break;
 
                 case AuctionSessions.SessionF:
-                    msg = new SessionFMessage(message, startIndex, count);
+                    result = new SessionFMessage(message, offset, count);
                     break;
 
                 case AuctionSessions.SessionG:
-                    msg = new SessionGMessage(message, startIndex, count);
+                    result = new SessionGMessage(message, offset, count);
                     break;
 
                 case AuctionSessions.SessionH:
-                    msg = new SessionHMessage(message, startIndex, count);
+                    result = new SessionHMessage(message, offset, count);
                     break;
 
                 default:
                     throw new NotSupportedException("Unsupported auction session.");
             }
-            Debug.Assert(msg != null);
-            return msg;
+
+            Debug.Assert(result != null);
+            return result;
         }
         #endregion
 
@@ -131,14 +140,9 @@ namespace BidMessages
             int bodyLength = GetBodyBytes(target, offset + HeaderLength);
             int length = bodyLength + HeaderLength;
 
-            IPAddress.HostToNetworkOrder(length).GetBytes(target, offset);
-            offset += sizeof(int);
-
-            Bytes.HostToNetworkOrder((ushort)Function).GetBytes(target, offset);
-            offset += sizeof(ushort);
-
-            IPAddress.HostToNetworkOrder(bodyLength).GetBytes(target, offset);
-            offset += sizeof(int);
+            offset += IPAddress.HostToNetworkOrder(length).GetBytes(target, offset);
+            offset += Bytes.HostToNetworkOrder((ushort)Function).GetBytes(target, offset);
+            offset += IPAddress.HostToNetworkOrder(bodyLength).GetBytes(target, offset);
             Debug.Assert(offset == HeaderLength);
 
             return length;

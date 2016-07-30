@@ -16,13 +16,13 @@ namespace QuoteProviders
         private IPEndPoint m_remoteEP;
         private string m_username;
         private string m_password;
+        private byte[] m_heartbeatBytes;
         private byte[] m_buffer;
         private int m_readIndex;
         private int m_writeIndex;
         private uint m_lastReception;
         private uint m_lastHeartbeat;
         private int m_maxHeartbeatInterval;
-        private byte[] m_heartbeatBytes;
         private int m_retryTimes;
         private Random m_rand = new Random();
 
@@ -33,12 +33,12 @@ namespace QuoteProviders
         /// <param name="port">the port number on the remote server.</param>
         /// <param name="username">the username for login.</param>
         /// <param name="password">the password for the account.</param>
-        /// <exception cref="System.ArgumentNullException">The input byte array is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The input address or username or password is null.</exception>
         public TcpQuoteProvider(string address, int port, string username, string password)
         {
             if (address == null || username == null || password == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("the input address or username or password is null.");
             }
 
             IPAddress[] ipAddresses = Dns.GetHostAddresses(address);
@@ -46,6 +46,8 @@ namespace QuoteProviders
             {
                 throw new ArgumentException("Unable to resolve the specified host name to an IP address.");
             }
+
+            m_client = null;
 
             IPAddress ipAddress = ipAddresses[0];
             m_remoteEP = new IPEndPoint(ipAddress, port);
@@ -55,10 +57,13 @@ namespace QuoteProviders
             HeartbeatMessage heartbeat = new HeartbeatMessage(m_username);
             m_heartbeatBytes = heartbeat.GetBytes();
 
-            m_state = Create;
             m_buffer = new byte[4 * 1024];
             m_readIndex = m_writeIndex = 0;
+            m_lastReception = m_lastHeartbeat = 0;
+            m_maxHeartbeatInterval = 0;
             m_retryTimes = 0;
+
+            m_runByState = Create;
         }
 
         /// <summary>
@@ -76,6 +81,7 @@ namespace QuoteProviders
         /// Creates a socket to be used to connect to the remote server.
         /// Goes to states <c>Connect</c> and <c>Close</c>.
         /// </summary>
+        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
         private int Create()
         {
             ChangeStatus(QuoteProviderStatus.Open);
@@ -84,12 +90,12 @@ namespace QuoteProviders
             {
                 m_client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 m_client.ReceiveTimeout = 500;
-                m_state = Connect;
+                m_runByState = Connect;
             }
             catch (Exception ex)
             {
                 OnErrorOccurred(ex, true);
-                m_state = Close;
+                m_runByState = Close;
             }
 
             return 0;
@@ -99,13 +105,14 @@ namespace QuoteProviders
         /// Connects to the remote server.
         /// Goes to states <c>Create</c>, <c>Authenticate</c>, and <c>Close</c>.
         /// </summary>
+        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
         private int Connect()
         {
             try
             {
                 Debug.Assert(m_remoteEP != null);
                 m_client.Connect(m_remoteEP);
-                m_state = Authenticate;
+                m_runByState = Authenticate;
             }
             catch (SocketException se)
             {
@@ -120,6 +127,7 @@ namespace QuoteProviders
         /// Uses the credentials to authenticate with the remote server.
         /// Goes to states <c>Create</c>, <c>Receive</c>, and <c>Close</c>.
         /// </summary>
+        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
         private int Authenticate()
         {
             ChangeStatus(QuoteProviderStatus.Authenticate);
@@ -149,7 +157,7 @@ namespace QuoteProviders
                     m_retryTimes = 0;
                     m_readIndex = m_writeIndex = 0;
                     m_lastReception = m_lastHeartbeat = (uint)Environment.TickCount;
-                    m_state = Receive;
+                    m_runByState = Receive;
                 }
                 else
                 {
@@ -164,7 +172,7 @@ namespace QuoteProviders
             catch (Exception ex)
             {
                 OnErrorOccurred(ex, true);
-                m_state = Close;
+                m_runByState = Close;
             }
 
             return 0;
@@ -174,6 +182,7 @@ namespace QuoteProviders
         /// Receives data from the remote server and parses them for <c>QuoteMessage</c>s.
         /// Goes to states <c>Create</c> and <c>Close</c>.
         /// </summary>
+        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
         private int Receive()
         {
             ChangeStatus(QuoteProviderStatus.Read);
@@ -185,7 +194,7 @@ namespace QuoteProviders
                     int count = m_client.Receive(m_buffer, m_writeIndex, m_buffer.Length - m_writeIndex, SocketFlags.None);
                     if (count <= 0)
                     {
-                        m_state = Close;
+                        m_runByState = Close;
                         throw new Exception("Connection closed by remote host.");
                     }
                     m_writeIndex += count;
@@ -222,7 +231,7 @@ namespace QuoteProviders
             catch (Exception ex)
             {
                 OnErrorOccurred(ex, true);
-                m_state = Close;
+                m_runByState = Close;
             }
 
             return 0;
@@ -230,7 +239,9 @@ namespace QuoteProviders
 
         /// <summary>
         /// Closes the connection to the remote server.
+        /// Goes to state <c>Idle</c>.
         /// </summary>
+        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
         private int Close()
         {
             ChangeStatus(QuoteProviderStatus.Close);
@@ -252,7 +263,7 @@ namespace QuoteProviders
                 m_client.Close();
             }
 
-            m_state = null;
+            m_runByState = null;
             ChangeStatus(QuoteProviderStatus.Inactive);
             return 0;
         }
@@ -312,7 +323,8 @@ namespace QuoteProviders
 
                 if (funcCode == (ushort)FunctionCodes.Quote)
                 {
-                    OnMessageParsed((QuoteMessage)BidMessage.Create(FunctionCodes.Quote, m_buffer, m_readIndex, length));
+                    QuoteMessage message = (QuoteMessage)BidMessage.Create(FunctionCodes.Quote, m_buffer, m_readIndex, length);
+                    OnQuoteMessageReceived(message);
                 }
 
                 m_readIndex += length;
@@ -328,7 +340,7 @@ namespace QuoteProviders
         }
 
         /// <summary>
-        /// Xalculates the elapsed time since a given time.
+        /// Calculates the elapsed time since a given time.
         /// </summary>
         /// <param name="last">the given time to calculate elapsed time on.</param>
         /// <returns>The elapsed time.</returns>
@@ -346,10 +358,12 @@ namespace QuoteProviders
             if (++m_retryTimes >= 3)
             {
                 OnErrorOccurred(new Exception("Max number of reconnection trials reached."), true);
-                m_state = Close;
+                m_runByState = Close;
             }
+
             Close(); // first, close
-            m_state = Create; // then, recreate
+            m_runByState = Create; // then, re-create
+
             return (1000 + m_rand.Next(2000));
         }
     }
