@@ -29,7 +29,10 @@ namespace ConsoleViewer
         /// </summary>
         public string ListenerName
         {
-            get { return "ConsoleViewer"; }
+            get
+            {
+                return "ConsoleViewer";
+            }
         }
 
         /// <summary>

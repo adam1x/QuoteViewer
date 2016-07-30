@@ -263,7 +263,7 @@ namespace QuoteProviders
                 m_client.Close();
             }
 
-            m_runByState = null;
+            m_runByState = Idle;
             ChangeStatus(QuoteProviderStatus.Inactive);
             return 0;
         }
