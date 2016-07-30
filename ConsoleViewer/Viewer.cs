@@ -78,7 +78,7 @@ namespace ConsoleViewer
 
             ((IQuoteDataProvider)provider).Subscribe(this);
 
-            do
+            while (true)
             {
                 int sleep = provider.Run();
 
@@ -94,7 +94,6 @@ namespace ConsoleViewer
 
                 Thread.Sleep(sleep);
             }
-            while (provider.Status != QuoteProviderStatus.Inactive);
 
             Console.Write("\nPress Enter to exit...");
             Console.ReadLine();
