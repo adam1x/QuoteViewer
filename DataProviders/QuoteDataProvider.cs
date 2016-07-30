@@ -102,9 +102,12 @@ namespace QuoteProviders
                 throw new ArgumentNullException("listener cannot be null.");
             }
 
-            if (!m_listeners.Contains(listener))
+            lock (m_listeners)
             {
-                m_listeners.Add(listener);
+                if (!m_listeners.Contains(listener))
+                {
+                    m_listeners.Add(listener);
+                }
             }
         }
 
@@ -120,9 +123,12 @@ namespace QuoteProviders
                 throw new ArgumentNullException("listener cannot be null.");
             }
 
-            if (m_listeners.Contains(listener))
+            lock (m_listeners)
             {
-                m_listeners.Remove(listener);
+                if (m_listeners.Contains(listener))
+                {
+                    m_listeners.Remove(listener);
+                }
             }
         }
 

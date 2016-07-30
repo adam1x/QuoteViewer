@@ -7,7 +7,7 @@ using QuoteProviders;
 namespace ConsoleViewer
 {
     /// <summary>
-    /// Mdels a console application that displays quote data.
+    /// Models a console application that displays quote data.
     /// </summary>
     class Viewer : IQuoteDataListener
     {
@@ -21,10 +21,10 @@ namespace ConsoleViewer
         /// <summary>
         /// Initializes a new instance of the <c>ConsoleViewer</c> class.
         /// </summary>
-        public Viewer()
+        public Viewer(QuoteDataProvider provider)
         {
             m_previousMessage = null;
-            m_provider = null;
+            m_provider = provider;
         }
 
         /// <summary>
@@ -43,47 +43,12 @@ namespace ConsoleViewer
         /// </summary>
         public void Run()
         {
-            while (true)
-            {
-                Console.WriteLine("Choose source: 1. Internet. 2. Local file.");
-                Console.Write("Type your choice here: ");
-                ConsoleKeyInfo key = Console.ReadKey();
-                Console.WriteLine();
-
-                switch (key.Key)
-                {
-                    case ConsoleKey.D1:
-                        Console.Write("Username: ");
-                        string username = Console.ReadLine();
-                        Console.Write("Password: ");
-                        string password = Console.ReadLine();
-
-                        m_provider = new TcpQuoteProvider("180.166.86.198", 8301, username, password);
-                        break;
-
-                    case ConsoleKey.D2:
-                        Console.Write("Local path: ");
-                        string filePath = Console.ReadLine();
-
-                        m_provider = new FileQuoteProvider(filePath);
-                        break;
-
-                    default:
-                        Console.WriteLine("Invalid response. Try Again...");
-                        break;
-                }
-
-                if (m_provider != null)
-                {
-                    m_provider.StatusChanged += parser_StatusChanged;
-                    break;
-                }
-            }
-
             ((IQuoteDataProvider)m_provider).Subscribe(this);
+            m_provider.StatusChanged += parser_StatusChanged;
 
-            Thread th = new Thread(RunProvider);
-            th.Start();
+            Thread dataProvider = new Thread(RunProvider);
+            dataProvider.IsBackground = true;
+            dataProvider.Start();
 
             while (true)
             {
@@ -102,6 +67,9 @@ namespace ConsoleViewer
             Console.ReadLine();
         }
 
+        /// <summary>
+        /// Runs a <c>QuoteDataProvider</c> object.
+        /// </summary>
         private void RunProvider()
         {
             while (true)
