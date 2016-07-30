@@ -170,8 +170,8 @@ namespace BidMessages
             DateTime result = defaultValue;
 
             string raw = GetFieldValueAsString(index);
-            if (!string.IsNullOrEmpty(raw) ||
-                !DateTime.TryParseExact(GetFieldValueAsString(index), "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
+            if (!string.IsNullOrEmpty(raw) &&
+                !DateTime.TryParseExact(raw, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
             {
                 throw new FormatException("This field is not in a correct format.");
             }
@@ -222,8 +222,8 @@ namespace BidMessages
             TimeSpan result = defaultValue;
 
             string raw = GetFieldValueAsString(index);
-            if (!string.IsNullOrEmpty(raw) ||
-                !TimeSpan.TryParseExact(GetFieldValueAsString(index), "g", CultureInfo.InvariantCulture, out result))
+            if (!string.IsNullOrEmpty(raw) &&
+                !TimeSpan.TryParseExact(raw, "g", CultureInfo.InvariantCulture, out result))
             {
                 throw new FormatException("This field is not in a correct format.");
             }

@@ -130,7 +130,7 @@ namespace QuoteProviders
         /// Notifies all listeners that a <c>QuoteMessage</c> object has been successfully received.
         /// </summary>
         /// <param name="message">the <c>QuoteMessage</c> object that has just been received.</param>
-        protected void OnQuoteMessageReceived(QuoteMessage message)
+        protected virtual void OnQuoteMessageReceived(QuoteMessage message)
         {
             foreach (IQuoteDataListener listener in m_listeners)
             {
@@ -150,7 +150,7 @@ namespace QuoteProviders
         /// </summary>
         /// <param name="ex">the exception that represents the error.</param>
         /// <param name="severe">the severity of this error: true means needs to abort; false means can try to recover.</param>
-        protected void OnErrorOccurred(Exception error, bool severe)
+        protected virtual void OnErrorOccurred(Exception error, bool severe)
         {
             foreach (IQuoteDataListener listener in m_listeners)
             {

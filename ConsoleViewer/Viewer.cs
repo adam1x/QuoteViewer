@@ -16,12 +16,15 @@ namespace ConsoleViewer
         /// </summary>
         private QuoteMessage m_previousMessage;
 
+        private QuoteDataProvider m_provider;
+
         /// <summary>
         /// Initializes a new instance of the <c>ConsoleViewer</c> class.
         /// </summary>
         public Viewer()
         {
             m_previousMessage = null;
+            m_provider = null;
         }
 
         /// <summary>
@@ -40,8 +43,6 @@ namespace ConsoleViewer
         /// </summary>
         public void Run()
         {
-            QuoteDataProvider provider = null;
-
             while (true)
             {
                 Console.WriteLine("Choose source: 1. Internet. 2. Local file.");
@@ -57,14 +58,14 @@ namespace ConsoleViewer
                         Console.Write("Password: ");
                         string password = Console.ReadLine();
 
-                        provider = new TcpQuoteProvider("180.166.86.198", 8301, username, password);
+                        m_provider = new TcpQuoteProvider("180.166.86.198", 8301, username, password);
                         break;
 
                     case ConsoleKey.D2:
                         Console.Write("Local path: ");
                         string filePath = Console.ReadLine();
 
-                        provider = new FileQuoteProvider(filePath);
+                        m_provider = new FileQuoteProvider(filePath);
                         break;
 
                     default:
@@ -72,34 +73,42 @@ namespace ConsoleViewer
                         break;
                 }
 
-                if (provider != null)
+                if (m_provider != null)
                 {
-                    provider.StatusChanged += parser_StatusChanged;
+                    m_provider.StatusChanged += parser_StatusChanged;
                     break;
                 }
             }
 
-            ((IQuoteDataProvider)provider).Subscribe(this);
+            ((IQuoteDataProvider)m_provider).Subscribe(this);
+
+            Thread th = new Thread(RunProvider);
+            th.Start();
 
             while (true)
             {
-                int sleep = provider.Run();
-
                 if (Console.KeyAvailable)
                 {
                     if (Console.ReadKey(true).Key == ConsoleKey.Escape)
                     {
                         Console.WriteLine("Manual abort.\nExiting...");
-                        ((IQuoteDataProvider)provider).Unsubscribe(this);
+                        ((IQuoteDataProvider)m_provider).Unsubscribe(this);
                         break;
                     }
                 }
-
-                Thread.Sleep(sleep);
             }
 
             Console.Write("\nPress Enter to exit...");
             Console.ReadLine();
+        }
+
+        private void RunProvider()
+        {
+            while (true)
+            {
+                int sleep = m_provider.Run();
+                Thread.Sleep(sleep);
+            }
         }
 
         /// <summary>
