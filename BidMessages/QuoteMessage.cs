@@ -39,13 +39,13 @@ namespace BidMessages
         public QuoteMessage(byte[] message, int offset, int count)
         {
             if (message == null || message.Length <= 0)
- 			{
- 				throw new ArgumentNullException("message cannot be null or empty.");
- 			}
- 			if (offset < 0 || count <= MinLength || message.Length - offset < count)
- 			{
- 				throw new ArgumentOutOfRangeException("offset or count out of range.");
- 			}
+            {
+                throw new ArgumentNullException("message cannot be null or empty.");
+            }
+            if (offset < 0 || count <= MinLength || message.Length - offset < count)
+            {
+                throw new ArgumentOutOfRangeException("offset or count out of range.");
+            }
 
             m_bodyLength = count - HeaderLength;
 
@@ -79,9 +79,15 @@ namespace BidMessages
         }
 
         /// <summary>
+        /// The message's auction date.
+        /// </summary>
+        public abstract DateTime AuctionDate { get; }
+
+        /// <summary>
         /// The message's auction session.
         /// </summary>
         public abstract AuctionSessions AuctionSession { get; }
+
 
         /// <summary>
         /// The message's fields.
@@ -171,7 +177,8 @@ namespace BidMessages
 
             string raw = GetFieldValueAsString(index);
             if (!string.IsNullOrEmpty(raw) &&
-                !DateTime.TryParseExact(raw, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
+                !(DateTime.TryParseExact(raw, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out result) ||
+                  DateTime.TryParseExact(raw, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out result)))
             {
                 throw new FormatException("This field is not in a correct format.");
             }
@@ -375,9 +382,7 @@ namespace BidMessages
                 return 1;
             }
 
-            DateTime updateTime1 = m1.GetFieldValueAsDateTime(0);
-            DateTime updateTime2 = m2.GetFieldValueAsDateTime(0);
-            int result = DateTime.Compare(updateTime1, updateTime2);
+            int result = DateTime.Compare(m1.UpdateTimestamp, m2.UpdateTimestamp);
             if (result > 0)
             {
                 return 1;
@@ -387,9 +392,7 @@ namespace BidMessages
                 return -1;
             }
 
-            AuctionSessions session1 = m1.AuctionSession;
-            AuctionSessions session2 = m2.AuctionSession;
-            int sessionComparison = CompareSession(session1, session2);
+            int sessionComparison = CompareSession(m1.AuctionSession, m2.AuctionSession);
             if (sessionComparison != 0)
             {
                 return sessionComparison;
@@ -397,9 +400,10 @@ namespace BidMessages
 
             if (m1 is QuoteDataMessage)
             {
-                TimeSpan serverTime1 = m1.GetFieldValueAsTimeSpan(13);
-                TimeSpan serverTime2 = m2.GetFieldValueAsTimeSpan(13);
-                result = TimeSpan.Compare(serverTime1, serverTime2);
+                QuoteDataMessage dataMessage1 = (QuoteDataMessage)m1;
+                QuoteDataMessage dataMessage2 = (QuoteDataMessage)m2;
+
+                result = TimeSpan.Compare(dataMessage1.ServerTime, dataMessage2.ServerTime);
                 if (result > 0)
                 {
                     return 1;
@@ -411,8 +415,11 @@ namespace BidMessages
 
                 if (m1 is SessionAMessage)
                 {
-                    int bidQuantity1 = m1.GetFieldValueAsInt32(14);
-                    int bidQuantity2 = m2.GetFieldValueAsInt32(14);
+                    SessionAMessage aMessage1 = (SessionAMessage)m1;
+                    SessionAMessage aMessage2 = (SessionAMessage)m2;
+
+                    int bidQuantity1 = aMessage1.BidQuantity;
+                    int bidQuantity2 = aMessage2.BidQuantity;
                     if (bidQuantity1 > bidQuantity2)
                     {
                         return 1;
@@ -423,8 +430,8 @@ namespace BidMessages
                     }
                 }
 
-                int bidPrice1 = m1.GetFieldValueAsInt32(15);
-                int bidPrice2 = m2.GetFieldValueAsInt32(14);
+                int bidPrice1 = dataMessage1.BidPrice;
+                int bidPrice2 = dataMessage2.BidPrice;
                 if (bidPrice1 > bidPrice2)
                 {
                     return 1;
@@ -434,9 +441,7 @@ namespace BidMessages
                     return -1;
                 }
 
-                DateTime bidTime1 = m1.GetFieldValueAsDateTime(16);
-                DateTime bidTime2 = m2.GetFieldValueAsDateTime(15);
-                result = DateTime.Compare(bidTime1, bidTime2);
+                result = DateTime.Compare(dataMessage1.BidTime, dataMessage2.BidTime);
                 if (result < 0)
                 {
                     return 1;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace BidMessages
 {
@@ -31,6 +32,20 @@ namespace BidMessages
             get
             {
                 return AuctionSessions.SessionC;
+            }
+        }
+
+        /// <summary>
+        /// The message's server time.
+        /// </summary>
+        public TimeSpan ServerTime
+        {
+            get
+            {
+                string content = ContentText;
+                string cue = "系统目前时间：";
+                int offset = content.IndexOf(cue) + cue.Length;
+                return TimeSpan.ParseExact(content.Substring(offset, 8), "g", CultureInfo.InvariantCulture);
             }
         }
     }

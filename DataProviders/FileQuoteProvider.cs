@@ -131,8 +131,8 @@ namespace QuoteProviders
             ushort funcCode = Bytes.NetworkToHostOrder(m_reader.ReadUInt16());
             int bodyLength = IPAddress.NetworkToHostOrder(m_reader.ReadInt32());
 
-            byte[] body = new byte[BidMessage.HeaderLength + bodyLength];
-            m_reader.Read(body, BidMessage.HeaderLength + 1, bodyLength);
+            byte[] body = new byte[length];
+            m_reader.Read(body, BidMessage.HeaderLength, bodyLength);
 
             return (QuoteMessage)BidMessage.Create(FunctionCodes.Quote, body, 0, length);
         }

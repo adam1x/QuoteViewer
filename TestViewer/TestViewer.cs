@@ -39,7 +39,7 @@ namespace TestViewer
         {
             Console.WriteLine("Quote Message:");
             Console.WriteLine("--Update timestamp: {0}", msg.GetFieldValueAsDateTime(msg.GetIndexFromTag(QuoteFieldTags.UpdateTimestamp)));
-            Console.WriteLine("--Auction session: {0}", msg.GetFieldValueAsAuctionSessions());
+            Console.WriteLine("--Auction session: {0}", msg.AuctionSession);
 
             if (msg is QuoteDataMessage)
             {

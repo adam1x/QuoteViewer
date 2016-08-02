@@ -1,4 +1,7 @@
-﻿namespace BidMessages
+﻿using System;
+using System.Globalization;
+
+namespace BidMessages
 {
     /// <summary>
     /// Models <c>QuoteMessage</c>s that contain mainly text.
@@ -14,6 +17,17 @@
         public QuoteTextMessage(byte[] message, int startIndex, int count)
             : base(message, startIndex, count)
         {
+        }
+
+        /// <summary>
+        /// The message's auction date.
+        /// </summary>
+        public override DateTime AuctionDate
+        {
+            get
+            {
+                return DateTime.Parse(ContentText.Substring(5, 5), new CultureInfo("zh-CN"));
+            }
         }
 
         /// <summary>

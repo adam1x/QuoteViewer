@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace BidMessages
 {
@@ -16,6 +17,17 @@ namespace BidMessages
         public QuoteDataMessage(byte[] message, int startIndex, int count)
             : base(message, startIndex, count)
         {
+        }
+
+        /// <summary>
+        /// The message's auction date.
+        /// </summary>
+        public override DateTime AuctionDate
+        {
+            get
+            {
+                return DateTime.Parse(AuctionName.Substring(5, 5), new CultureInfo("zh-CN"));
+            }
         }
 
         /// <summary>

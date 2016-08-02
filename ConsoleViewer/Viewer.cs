@@ -19,7 +19,7 @@ namespace ConsoleViewer
         private QuoteDataProvider m_provider;
 
         /// <summary>
-        /// Initializes a new instance of the <c>ConsoleViewer</c> class.
+        /// Initializes a new instance of the <c>ConsoleViewer</c> class with the given quote data provider.
         /// </summary>
         public Viewer(QuoteDataProvider provider)
         {
@@ -76,6 +76,25 @@ namespace ConsoleViewer
             {
                 int sleep = m_provider.Run();
                 Thread.Sleep(sleep);
+            }
+        }
+
+        /// <summary>
+        /// Event handler for status change. It prints out notifications.
+        /// </summary>
+        /// <param name="ev">the event args that contains the data of this event.</param>
+        public void parser_StatusChanged(object sender, StatusChangedEventArgs ev)
+        {
+            QuoteProviderStatus previous = ev.Old;
+            QuoteProviderStatus current = ev.New;
+
+            if (previous != QuoteProviderStatus.Inactive && current == QuoteProviderStatus.Open)
+            {
+                Console.WriteLine("Attempting to reopen resource...");
+            }
+            else if ((previous == QuoteProviderStatus.Open || previous == QuoteProviderStatus.Authenticate) && current == QuoteProviderStatus.Read)
+            {
+                Console.WriteLine("Resource opened successfully.\n");
             }
         }
 
@@ -151,26 +170,8 @@ namespace ConsoleViewer
                 }
             }
 
+            m_previousMessage = message;
             Console.WriteLine();
-        }
-
-        /// <summary>
-        /// Event handler for status change. It prints out notifications.
-        /// </summary>
-        /// <param name="ev">the event args that contains the data of this event.</param>
-        public void parser_StatusChanged(object sender, StatusChangedEventArgs ev)
-        {
-            QuoteProviderStatus previous = ev.Old;
-            QuoteProviderStatus next = ev.New;
-
-            if (previous != QuoteProviderStatus.Inactive && next == QuoteProviderStatus.Open)
-            {
-                Console.WriteLine("Attempting to reopen resource...");
-            }
-            else if ((previous == QuoteProviderStatus.Open || previous == QuoteProviderStatus.Authenticate) && next == QuoteProviderStatus.Read)
-            {
-                Console.WriteLine("Resource opened successfully.\n");
-            }
         }
 
         /// <summary>
