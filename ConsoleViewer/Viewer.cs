@@ -11,20 +11,20 @@ namespace ConsoleViewer
     /// </summary>
     class Viewer : IQuoteDataListener
     {
-        /// <summary>
-        /// The previously received message.
-        /// </summary>
         private QuoteMessage m_previousMessage;
-
-        private QuoteDataProvider m_provider;
+        private IQuoteDataProvider m_provider;
+        private Thread m_providerThread;
+        private AutoResetEvent m_stopSignal;
 
         /// <summary>
         /// Initializes a new instance of the <c>ConsoleViewer</c> class with the given quote data provider.
         /// </summary>
-        public Viewer(QuoteDataProvider provider)
+        public Viewer(IQuoteDataProvider provider)
         {
             m_previousMessage = null;
             m_provider = provider;
+            m_providerThread = null;
+            m_stopSignal = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -41,52 +41,50 @@ namespace ConsoleViewer
         /// <summary>
         /// Start displaying.
         /// </summary>
-        public void Run()
+        internal void Start()
         {
-            ((IQuoteDataProvider)m_provider).Subscribe(this);
-            m_provider.StatusChanged += parser_StatusChanged;
+            m_provider.Subscribe(this);
+            m_provider.StatusChanged += OnStatusChanged;
 
-            Thread dataProvider = new Thread(RunProvider);
-            dataProvider.IsBackground = true;
-            dataProvider.Start();
-
-            while (true)
-            {
-                if (Console.KeyAvailable)
-                {
-                    if (Console.ReadKey(true).Key == ConsoleKey.Escape)
-                    {
-                        Console.WriteLine("Manual abort.\nExiting...");
-                        ((IQuoteDataProvider)m_provider).Unsubscribe(this);
-                        break;
-                    }
-                }
-            }
-
-            Console.Write("\nPress Enter to exit...");
-            Console.ReadLine();
+            m_providerThread = new Thread(RunProvider);
+            m_providerThread.Start();
         }
 
         /// <summary>
-        /// Runs a <c>QuoteDataProvider</c> object.
+        /// Stop the viewer.
+        /// </summary>
+        internal void Stop()
+        {
+            m_provider.Unsubscribe(this);
+            m_stopSignal = new AutoResetEvent(true);
+
+            if (m_providerThread != null)
+            {
+                m_providerThread.Join();
+            }
+        }
+
+        /// <summary>
+        /// Runs a quote data provider.
         /// </summary>
         private void RunProvider()
         {
-            while (true)
+            int sleep = 0;
+
+            while (!m_stopSignal.WaitOne(sleep))
             {
-                int sleep = m_provider.Run();
-                Thread.Sleep(sleep);
+                sleep = m_provider.Run();
             }
         }
 
         /// <summary>
         /// Event handler for status change. It prints out notifications.
         /// </summary>
-        /// <param name="ev">the event args that contains the data of this event.</param>
-        public void parser_StatusChanged(object sender, StatusChangedEventArgs ev)
+        /// <param name="e">the event args that contains the data of this event.</param>
+        public void OnStatusChanged(object sender, StatusChangedEventArgs e)
         {
-            QuoteProviderStatus previous = ev.Old;
-            QuoteProviderStatus current = ev.New;
+            QuoteProviderStatus previous = e.Old;
+            QuoteProviderStatus current = e.New;
 
             if (previous != QuoteProviderStatus.Inactive && current == QuoteProviderStatus.Open)
             {

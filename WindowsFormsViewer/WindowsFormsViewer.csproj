@@ -50,6 +50,8 @@
     <Compile Include="DataViewerForm.Designer.cs">
       <DependentUpon>DataViewerForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Manager.cs" />
+    <Compile Include="QuoteDataReceiver.cs" />
     <Compile Include="ServerLoginForm.cs">
       <SubType>Form</SubType>
     </Compile>

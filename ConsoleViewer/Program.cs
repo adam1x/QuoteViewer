@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 using QuoteProviders;
 
@@ -14,7 +15,7 @@ namespace ConsoleViewer
         /// </summary>
         public static void Main()
         {
-            QuoteDataProvider provider = null;
+            IQuoteDataProvider provider = null;
 
             while (true)
             {
@@ -52,8 +53,27 @@ namespace ConsoleViewer
                 }
             }
 
-            Viewer consoleViewer = new Viewer(provider);
-            consoleViewer.Run();
+            Viewer viewer = new Viewer(provider);
+            viewer.Start();
+
+            while (true)
+            {
+                Thread.Sleep(100);
+
+                if (Console.KeyAvailable)
+                {
+                    if (Console.ReadKey(true).Key == ConsoleKey.Escape)
+                    {
+                        Console.WriteLine("Manual abort.\nExiting...");
+                        break;
+                    }
+                }
+            }
+
+            viewer.Stop();
+
+            Console.Write("\nPress Enter to exit...");
+            Console.ReadLine();
         }
     }
 }

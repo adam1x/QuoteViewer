@@ -18,7 +18,9 @@ namespace WindowsFormsViewer
     public partial class DataViewerForm : Form, IQuoteDataListener
     {
         private QuoteMessage m_previousMessage;
-        private QuoteDataProvider m_provider;
+        private IQuoteDataProvider m_provider;
+        private Thread m_providerThread;
+        private AutoResetEvent m_stopSignal;
         private int m_basePrice;
 
         private delegate void SetTextCallback(Control control, string text);
@@ -28,7 +30,17 @@ namespace WindowsFormsViewer
             InitializeComponent();
             m_previousMessage = null;
             m_provider = null;
+            m_providerThread = null;
+            m_stopSignal = new AutoResetEvent(false);
             m_basePrice = -1;
+        }
+
+        internal IQuoteDataProvider Provider
+        {
+            set
+            {
+                m_provider = value;
+            }
         }
 
         /// <summary>
@@ -44,40 +56,40 @@ namespace WindowsFormsViewer
 
         private void DataViewerForm_Load(object sender, EventArgs e)
         {
-            SourceSelectionForm sourceForm = new SourceSelectionForm(this);
-            sourceForm.ShowDialog();
-        }
-
-        internal void SetQuoteDataProvider(string filePath)
-        {
-            m_provider = new FileQuoteProvider(filePath);
-        }
-
-        internal void SetQuoteDataProvider(string serverAddress, int port, string username, string password)
-        {
-            m_provider = new TcpQuoteProvider(serverAddress, port, username, password);
+            Program.FormsManager.Start(this);
         }
 
         internal void Run()
         {
             Debug.Assert(m_provider != null);
-            ((IQuoteDataProvider)m_provider).Subscribe(this);
-            m_provider.StatusChanged += parser_StatusChanged;
+            m_provider.Subscribe(this);
+            m_provider.StatusChanged += OnStatusChanged;
 
-            Thread dataProvider = new Thread(RunProvider);
-            dataProvider.IsBackground = true;
-            dataProvider.Start();
+            m_providerThread = new Thread(RunProvider);
+            m_providerThread.Start();
         }
 
         /// <summary>
-        /// Runs a <c>QuoteDataProvider</c> object.
+        /// Runs a quote data provider.
         /// </summary>
         private void RunProvider()
         {
-            while (true)
+            int sleep = 0;
+
+            while (!m_stopSignal.WaitOne(sleep))
             {
-                int sleep = m_provider.Run();
-                Thread.Sleep(sleep);
+                sleep = m_provider.Run();
+            }
+        }
+
+        private void DataViewerForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            m_provider.Unsubscribe(this);
+            m_stopSignal = new AutoResetEvent(true);
+
+            if (m_providerThread != null)
+            {
+                m_providerThread.Join();
             }
         }
 
@@ -88,7 +100,7 @@ namespace WindowsFormsViewer
             SetText(lblLocalTimeLine2, time.ToString("ss"));
         }
 
-        private void parser_StatusChanged(object sender, StatusChangedEventArgs e)
+        public void OnStatusChanged(object sender, StatusChangedEventArgs e)
         {
             return;
         }

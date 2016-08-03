@@ -12,27 +12,40 @@ namespace WindowsFormsViewer
 {
     public partial class SourceSelectionForm : Form
     {
-        private DataViewerForm m_mainForm;
         private string m_filePath;
         private string m_serverAddress;
         private int m_port;
-        private string m_username;
-        private string m_password;
 
-        public SourceSelectionForm(DataViewerForm mainForm)
+        public SourceSelectionForm()
         {
-            if (mainForm == null)
-            {
-                throw new ArgumentNullException("mainForm cannot be null.");
-            }
-
             InitializeComponent();
-            m_mainForm = mainForm;
             m_filePath = null;
             m_serverAddress = null;
-            m_port = 0;
-            m_username = null;
-            m_password = null;
+            m_port = -1;
+        }
+
+        internal string FilePath
+        {
+            get
+            {
+                return m_filePath;
+            }
+        }
+
+        internal string ServerAddress
+        {
+            get
+            {
+                return m_serverAddress;
+            }
+        }
+
+        internal int Port
+        {
+            get
+            {
+                return m_port;
+            }
         }
 
         private void btnBrowseFile_Click(object sender, EventArgs e)
@@ -40,15 +53,14 @@ namespace WindowsFormsViewer
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
             openFileDialog1.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            openFileDialog1.Filter = "dat files (*.dat)|*.dat|All files (*.*)|*.*";
+            openFileDialog1.Filter = "DAT files (*.dat)|*.dat|All files (*.*)|*.*";
             openFileDialog1.FilterIndex = 1;
             openFileDialog1.RestoreDirectory = true;
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 m_filePath = openFileDialog1.FileName;
-                m_mainForm.SetQuoteDataProvider(m_filePath);
-                OnValidInput();
+                Close();
             }
         }
 
@@ -70,27 +82,6 @@ namespace WindowsFormsViewer
                 return;
             }
 
-            ServerLoginForm loginForm = new ServerLoginForm(this);
-            loginForm.ShowDialog();
-        }
-
-        internal void SetCredentials(string username, string password)
-        {
-            if (username == null || password == null)
-            {
-                throw new ArgumentNullException("username and password cannot be null.");
-            }
-
-            m_username = username;
-            m_password = password;
-
-            m_mainForm.SetQuoteDataProvider(m_serverAddress, m_port, m_username, m_password);
-            OnValidInput();
-        }
-
-        internal void OnValidInput()
-        {
-            m_mainForm.Run();
             Close();
         }
     }

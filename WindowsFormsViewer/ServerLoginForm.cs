@@ -12,36 +12,48 @@ namespace WindowsFormsViewer
 {
     public partial class ServerLoginForm : Form
     {
-        private SourceSelectionForm m_sourceForm;
+        private string m_username;
+        private string m_password;
 
-        public ServerLoginForm(SourceSelectionForm sourceForm)
+        public ServerLoginForm()
         {
-            if (sourceForm == null)
-            {
-                throw new ArgumentNullException("sourceForm cannot be null");
-            }
-
             InitializeComponent();
-            m_sourceForm = sourceForm;
+            m_username = null;
+            m_password = null;
+        }
+
+        internal string Username
+        {
+            get
+            {
+                return m_username;
+            }
+        }
+
+        internal string Password
+        {
+            get
+            {
+                return m_password;
+            }
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            string username = txtUsername.Text;
-            if (username == null)
+            m_username = txtUsername.Text;
+            if (m_username == null)
             {
                 MessageBox.Show("Please enter a username.");
                 return;
             }
 
-            string password = txtPassword.Text;
-            if (password == null)
+            m_password = txtPassword.Text;
+            if (m_password == null)
             {
                 MessageBox.Show("Please enter a password.");
                 return;
             }
 
-            m_sourceForm.SetCredentials(username, password);
             Close();
         }
 

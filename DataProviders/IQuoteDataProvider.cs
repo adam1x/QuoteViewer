@@ -1,10 +1,17 @@
-﻿namespace QuoteProviders
+﻿using System;
+
+namespace QuoteProviders
 {
     /// <summary>
     /// Defines methods that a quote data provider class must implement.
     /// </summary>
     public interface IQuoteDataProvider
     {
+        /// <summary>
+        /// Triggered when the provider changes status.
+        /// </summary>
+        event EventHandler<StatusChangedEventArgs> StatusChanged;
+
         /// <summary>
         /// The provider's name.
         /// </summary>
@@ -21,5 +28,11 @@
         /// </summary>
         /// <param name="listener">the <c>IQuoteDataListener</c> listener to be unsubscribed.</param>
         void Unsubscribe(IQuoteDataListener listener);
+
+        /// <summary>
+        /// Runs a quote data provider.
+        /// </summary>
+        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
+        int Run();
     }
 }

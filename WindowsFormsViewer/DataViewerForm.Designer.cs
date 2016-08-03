@@ -62,7 +62,7 @@
             // lblAuctionDateName
             // 
             this.lblAuctionDateName.AutoSize = true;
-            this.lblAuctionDateName.Location = new System.Drawing.Point(53, 46);
+            this.lblAuctionDateName.Location = new System.Drawing.Point(55, 46);
             this.lblAuctionDateName.Name = "lblAuctionDateName";
             this.lblAuctionDateName.Size = new System.Drawing.Size(55, 13);
             this.lblAuctionDateName.TabIndex = 0;
@@ -315,7 +315,7 @@
             // 
             this.lblAuctionDateLine2.AutoSize = true;
             this.lblAuctionDateLine2.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAuctionDateLine2.Location = new System.Drawing.Point(64, 101);
+            this.lblAuctionDateLine2.Location = new System.Drawing.Point(62, 101);
             this.lblAuctionDateLine2.Name = "lblAuctionDateLine2";
             this.lblAuctionDateLine2.Size = new System.Drawing.Size(60, 31);
             this.lblAuctionDateLine2.TabIndex = 23;
@@ -362,6 +362,7 @@
             this.Controls.Add(this.lblAuctionDateName);
             this.Name = "DataViewerForm";
             this.Text = "Quote Data Viewer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DataViewerForm_FormClosing);
             this.Load += new System.EventHandler(this.DataViewerForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

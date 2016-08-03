@@ -5,6 +5,8 @@ namespace WindowsFormsViewer
 {
     public static class Program
     {
+        internal static Manager FormsManager = new Manager();
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -13,9 +15,7 @@ namespace WindowsFormsViewer
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
-            DataViewerForm dataViewerForm = new DataViewerForm();
-            Application.Run(dataViewerForm);
+            Application.Run(new DataViewerForm());
         }
     }
 }
