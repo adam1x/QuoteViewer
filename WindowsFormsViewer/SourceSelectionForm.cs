@@ -69,7 +69,7 @@ namespace WindowsFormsViewer
             m_serverAddress = txtServerAddress.Text;
             if (string.IsNullOrEmpty(m_serverAddress))
             {
-                MessageBox.Show("Please enter a server address.");
+                MessageBox.Show("Please enter a server address.", "Instructions", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -78,7 +78,7 @@ namespace WindowsFormsViewer
                 (!string.IsNullOrEmpty(serverPort) &&
                  !int.TryParse(serverPort, out m_port)) )
             {
-                MessageBox.Show("Please enter a number for port.");
+                MessageBox.Show("Please enter a number for port.", "Instructions", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 

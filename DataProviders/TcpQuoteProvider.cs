@@ -264,7 +264,6 @@ namespace QuoteProviders
             }
 
             m_runByState = Idle;
-            ChangeStatus(QuoteProviderStatus.Inactive);
             return 0;
         }
 
@@ -359,6 +358,7 @@ namespace QuoteProviders
             {
                 OnErrorOccurred(new Exception("Max number of reconnection trials reached."), true);
                 m_runByState = Close;
+                return 0;
             }
 
             Close(); // first, close

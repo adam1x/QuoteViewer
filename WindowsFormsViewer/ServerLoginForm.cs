@@ -43,14 +43,14 @@ namespace WindowsFormsViewer
             m_username = txtUsername.Text;
             if (m_username == null)
             {
-                MessageBox.Show("Please enter a username.");
+                MessageBox.Show("Please enter a username.", "Instructions", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             m_password = txtPassword.Text;
             if (m_password == null)
             {
-                MessageBox.Show("Please enter a password.");
+                MessageBox.Show("Please enter a password.", "Instructions", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 

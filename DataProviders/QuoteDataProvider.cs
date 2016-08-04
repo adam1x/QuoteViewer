@@ -77,6 +77,7 @@ namespace QuoteProviders
         /// <returns>Time to wait till next state is run, in milliseconds.</returns>
         protected int Idle()
         {
+            ChangeStatus(QuoteProviderStatus.Inactive);
             return 10;
         }
 

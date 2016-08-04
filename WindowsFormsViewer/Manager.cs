@@ -45,7 +45,7 @@ namespace WindowsFormsViewer
                 Debug.Assert(false);
             }
 
-            viewerForm.Run();
+            viewerForm.Start();
         }
     }
 }
