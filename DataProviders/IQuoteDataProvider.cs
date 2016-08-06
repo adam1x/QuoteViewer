@@ -30,9 +30,13 @@ namespace QuoteProviders
         void Unsubscribe(IQuoteDataListener listener);
 
         /// <summary>
-        /// Runs a quote data provider.
+        /// Starts a quote data provider.
         /// </summary>
-        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
-        int Run();
+        void Start();
+
+        /// <summary>
+        /// Stops a quote data provider.
+        /// </summary>
+        void Stop();
     }
 }

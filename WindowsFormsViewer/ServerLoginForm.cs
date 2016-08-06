@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsViewer
@@ -41,18 +34,7 @@ namespace WindowsFormsViewer
         private void btnLogin_Click(object sender, EventArgs e)
         {
             m_username = txtUsername.Text;
-            if (m_username == null)
-            {
-                MessageBox.Show("Please enter a username.", "Instructions", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
             m_password = txtPassword.Text;
-            if (m_password == null)
-            {
-                MessageBox.Show("Please enter a password.", "Instructions", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
 
             Close();
         }

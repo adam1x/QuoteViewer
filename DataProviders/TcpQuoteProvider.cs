@@ -34,6 +34,7 @@ namespace QuoteProviders
         /// <param name="username">the username for login.</param>
         /// <param name="password">the password for the account.</param>
         /// <exception cref="System.ArgumentNullException">The input address or username or password is null.</exception>
+        /// <exception cref="System.ArgumentException">The input address failed to be resolved.</exception>
         public TcpQuoteProvider(string address, int port, string username, string password)
         {
             if (address == null || username == null || password == null)

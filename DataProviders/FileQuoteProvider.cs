@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Threading;
 
 using BidMessages;
 
@@ -39,7 +40,10 @@ namespace QuoteProviders
         /// </summary>
         public override string ProviderName
         {
-            get { return "LocalQuoteProvider"; }
+            get
+            {
+                return "LocalQuoteProvider";
+            }
         }
 
         /// <summary>
@@ -75,16 +79,19 @@ namespace QuoteProviders
         {
             ChangeStatus(QuoteProviderStatus.Read);
 
+            Thread.Sleep(10); // release CPU time
+
             try
             {
-                if (m_stream.Position == m_stream.Length)
+                QuoteMessage message = ReadQuoteMessage();
+
+                if (message == null)
                 {
                     m_runByState = Close;
                     return 0;
                 }
 
-                QuoteMessage msg = ParseQuote();
-                OnQuoteMessageReceived(msg);
+                OnQuoteMessageReceived(message);
             }
             catch (Exception ex)
             {
@@ -124,17 +131,31 @@ namespace QuoteProviders
         /// Parses a single quote message from a reading file.
         /// </summary>
         /// <param name="r">the <c>BinaryReader</c> object reading the target file.</param>
-        /// <returns>The parsed <c>QuoteMessage</c> object.</returns>
-        private QuoteMessage ParseQuote()
+        /// <returns>The parsed <c>QuoteMessage</c> object or null if all available objects have been read.</returns>
+        private QuoteMessage ReadQuoteMessage()
         {
-            int length = IPAddress.NetworkToHostOrder(m_reader.ReadInt32());
-            ushort funcCode = Bytes.NetworkToHostOrder(m_reader.ReadUInt16());
-            int bodyLength = IPAddress.NetworkToHostOrder(m_reader.ReadInt32());
+            try
+            {
+                QuoteMessage result = null;
 
-            byte[] body = new byte[length];
-            m_reader.Read(body, BidMessage.HeaderLength, bodyLength);
+                int length = IPAddress.NetworkToHostOrder(m_reader.ReadInt32());
+                ushort funcCode = Bytes.NetworkToHostOrder(m_reader.ReadUInt16());
+                int bodyLength = IPAddress.NetworkToHostOrder(m_reader.ReadInt32());
 
-            return (QuoteMessage)BidMessage.Create(FunctionCodes.Quote, body, 0, length);
+                byte[] body = new byte[length];
+                int count = m_reader.Read(body, BidMessage.HeaderLength, bodyLength);
+
+                if (count == bodyLength)
+                {
+                    result = (QuoteMessage)BidMessage.Create(FunctionCodes.Quote, body, 0, length);
+                }
+
+                return result;
+            }
+            catch (EndOfStreamException)
+            {
+                return null;
+            }
         }
     }
 }

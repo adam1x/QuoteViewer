@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 
 using BidMessages;
 using QuoteProviders;
@@ -9,22 +8,16 @@ namespace ConsoleViewer
     /// <summary>
     /// Models a console application that displays quote data.
     /// </summary>
-    class Viewer : IQuoteDataListener
+    class ConsoleViewer : IQuoteDataListener
     {
         private QuoteMessage m_previousMessage;
-        private IQuoteDataProvider m_provider;
-        private Thread m_providerThread;
-        private AutoResetEvent m_stopSignal;
 
         /// <summary>
         /// Initializes a new instance of the <c>ConsoleViewer</c> class with the given quote data provider.
         /// </summary>
-        public Viewer(IQuoteDataProvider provider)
+        public ConsoleViewer(IQuoteDataProvider provider)
         {
             m_previousMessage = null;
-            m_provider = provider;
-            m_providerThread = null;
-            m_stopSignal = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -35,45 +28,6 @@ namespace ConsoleViewer
             get
             {
                 return "ConsoleViewer";
-            }
-        }
-
-        /// <summary>
-        /// Start displaying.
-        /// </summary>
-        internal void Start()
-        {
-            m_provider.Subscribe(this);
-            m_provider.StatusChanged += OnStatusChanged;
-
-            m_providerThread = new Thread(RunProvider);
-            m_providerThread.Start();
-        }
-
-        /// <summary>
-        /// Stop the viewer.
-        /// </summary>
-        internal void Stop()
-        {
-            m_provider.Unsubscribe(this);
-            m_stopSignal = new AutoResetEvent(true);
-
-            if (m_providerThread != null)
-            {
-                m_providerThread.Join();
-            }
-        }
-
-        /// <summary>
-        /// Runs a quote data provider.
-        /// </summary>
-        private void RunProvider()
-        {
-            int sleep = 0;
-
-            while (!m_stopSignal.WaitOne(sleep))
-            {
-                sleep = m_provider.Run();
             }
         }
 

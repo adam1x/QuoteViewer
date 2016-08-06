@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Diagnostics;
 
 using QuoteProviders;
 
@@ -14,6 +15,37 @@ namespace ConsoleViewer
         /// Entry point of this console viewer program.
         /// </summary>
         public static void Main()
+        {
+            IQuoteDataProvider provider = GetProvider();
+
+            ConsoleViewer viewer = new ConsoleViewer(provider);
+
+            provider.Subscribe(viewer);
+            provider.StatusChanged += viewer.OnStatusChanged;
+            provider.Start();
+
+            while (true)
+            {
+                Thread.Sleep(100);
+
+                if (Console.KeyAvailable)
+                {
+                    if (Console.ReadKey(true).Key == ConsoleKey.Escape)
+                    {
+                        Console.WriteLine("Manual abort.\nExiting...");
+                        break;
+                    }
+                }
+            }
+
+            provider.Stop();
+            provider.Unsubscribe(viewer);
+
+            Console.Write("\nPress Enter to exit...");
+            Console.ReadLine();
+        }
+
+        private static IQuoteDataProvider GetProvider()
         {
             IQuoteDataProvider provider = null;
 
@@ -53,27 +85,10 @@ namespace ConsoleViewer
                 }
             }
 
-            Viewer viewer = new Viewer(provider);
-            viewer.Start();
+            Console.WriteLine();
 
-            while (true)
-            {
-                Thread.Sleep(100);
-
-                if (Console.KeyAvailable)
-                {
-                    if (Console.ReadKey(true).Key == ConsoleKey.Escape)
-                    {
-                        Console.WriteLine("Manual abort.\nExiting...");
-                        break;
-                    }
-                }
-            }
-
-            viewer.Stop();
-
-            Console.Write("\nPress Enter to exit...");
-            Console.ReadLine();
+            Debug.Assert(provider != null);
+            return provider;
         }
     }
 }

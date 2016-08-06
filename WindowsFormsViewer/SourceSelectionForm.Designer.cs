@@ -31,11 +31,12 @@
             this.btnBrowseFile = new System.Windows.Forms.Button();
             this.btnConnectToServer = new System.Windows.Forms.Button();
             this.txtServerAddress = new System.Windows.Forms.TextBox();
-            this.txtServerPort = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.numServerPort = new System.Windows.Forms.NumericUpDown();
+            ((System.ComponentModel.ISupportInitialize)(this.numServerPort)).BeginInit();
             this.SuspendLayout();
             // 
             // btnBrowseFile
@@ -64,14 +65,6 @@
             this.txtServerAddress.Name = "txtServerAddress";
             this.txtServerAddress.Size = new System.Drawing.Size(110, 20);
             this.txtServerAddress.TabIndex = 4;
-            // 
-            // txtServerPort
-            // 
-            this.txtServerPort.Location = new System.Drawing.Point(136, 175);
-            this.txtServerPort.MaxLength = 5;
-            this.txtServerPort.Name = "txtServerPort";
-            this.txtServerPort.Size = new System.Drawing.Size(53, 20);
-            this.txtServerPort.TabIndex = 5;
             // 
             // label1
             // 
@@ -106,20 +99,29 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // numServerPort
+            // 
+            this.numServerPort.Location = new System.Drawing.Point(138, 175);
+            this.numServerPort.Name = "numServerPort";
+            this.numServerPort.Size = new System.Drawing.Size(53, 20);
+            this.numServerPort.TabIndex = 10;
+            // 
             // SourceSelectionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Controls.Add(this.numServerPort);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.txtServerPort);
             this.Controls.Add(this.txtServerAddress);
             this.Controls.Add(this.btnConnectToServer);
             this.Controls.Add(this.btnBrowseFile);
             this.Name = "SourceSelectionForm";
             this.Text = "Pick Source";
+            this.Load += new System.EventHandler(this.SourceSelectionForm_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.numServerPort)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -130,11 +132,11 @@
         private System.Windows.Forms.Button btnBrowseFile;
         private System.Windows.Forms.Button btnConnectToServer;
         private System.Windows.Forms.TextBox txtServerAddress;
-        private System.Windows.Forms.TextBox txtServerPort;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.NumericUpDown numServerPort;
     }
 }
 

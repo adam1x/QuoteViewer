@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net;
 using System.Windows.Forms;
 
 namespace WindowsFormsViewer
@@ -48,6 +42,12 @@ namespace WindowsFormsViewer
             }
         }
 
+        private void SourceSelectionForm_Load(object sender, EventArgs e)
+        {
+            numServerPort.Minimum = IPEndPoint.MinPort;
+            numServerPort.Maximum = IPEndPoint.MaxPort;
+        }
+
         private void btnBrowseFile_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
@@ -60,6 +60,9 @@ namespace WindowsFormsViewer
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 m_filePath = openFileDialog1.FileName;
+
+                ResetServerAddress();
+
                 Close();
             }
         }
@@ -73,16 +76,37 @@ namespace WindowsFormsViewer
                 return;
             }
 
-            string serverPort = txtServerPort.Text;
-            if (string.IsNullOrEmpty(serverPort) || 
-                (!string.IsNullOrEmpty(serverPort) &&
-                 !int.TryParse(serverPort, out m_port)) )
+            decimal portInput = numServerPort.Value;
+            if (portInput % 1 != 0)
             {
-                MessageBox.Show("Please enter a number for port.", "Instructions", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Please enter a whole number for port.", "Instructions", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                numServerPort.Value = 0;
                 return;
             }
 
+            m_port = (int)portInput;
+
+            ResetFilePath();
+
             Close();
+        }
+
+        internal void ResetFilePath()
+        {
+            m_filePath = null;
+        }
+
+        internal void ResetServerAddress()
+        {
+            m_serverAddress = null;
+            m_port = -1;
+            txtServerAddress.ResetText();
+            numServerPort.Value = 0;
+        }
+
+        internal void OnErrorOccurred(Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
 }

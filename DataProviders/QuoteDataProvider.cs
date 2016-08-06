@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Diagnostics;
 
 using BidMessages;
@@ -36,6 +37,9 @@ namespace QuoteProviders
         /// </summary>
         protected List<IQuoteDataListener> m_listeners;
 
+        private Thread m_providerThread;
+        private AutoResetEvent m_stopSignal;
+
         /// <summary>
         /// Initializes a new instance of the <c>QuoteDataProvider</c> class.
         /// </summary>
@@ -44,6 +48,8 @@ namespace QuoteProviders
             m_runByState = Idle;
             m_status = QuoteProviderStatus.Inactive;
             m_listeners = new List<IQuoteDataListener>();
+            m_providerThread = null;
+            m_stopSignal = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -62,13 +68,31 @@ namespace QuoteProviders
         /// </summary>
         public abstract string ProviderName { get; }
 
-        /// <summary>
-        /// Runs a quote data provider.
-        /// </summary>
-        /// <returns>Time to wait till next state is run, in milliseconds.</returns>
-        public int Run()
+        public void Start()
         {
-            return m_runByState();
+            m_providerThread = new Thread(RunProvider);
+            m_providerThread.Start();
+        }
+
+        public void Stop()
+        {
+            m_stopSignal = new AutoResetEvent(true);
+
+            if (m_providerThread != null)
+            {
+                bool isTerminated = m_providerThread.Join(3000);
+                Debug.Assert(isTerminated, "Provider thread failed to terminate in the specified time.");
+            }
+        }
+
+        private void RunProvider()
+        {
+            int sleep = 0;
+
+            while (!m_stopSignal.WaitOne(sleep))
+            {
+                sleep = m_runByState();
+            }
         }
 
         /// <summary>
@@ -87,6 +111,11 @@ namespace QuoteProviders
         /// <param name="current">the status to change to.</param>
         protected void ChangeStatus(QuoteProviderStatus current)
         {
+            if (m_status == current)
+            {
+                return;
+            }
+
             OnStatusChanged(new StatusChangedEventArgs(m_status, current));
             m_status = current;
         }

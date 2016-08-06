@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WindowsFormsViewer
 {
     public class ErrorOccurredEventArgs
     {
-        private Exception m_ex;
+        private Exception m_error;
         private bool m_severe;
 
         public ErrorOccurredEventArgs(Exception ex, bool severe)
@@ -18,19 +14,19 @@ namespace WindowsFormsViewer
                 throw new ArgumentNullException("ex cannot be null.");
             }
 
-            m_ex = ex;
+            m_error = ex;
             m_severe = severe;
         }
 
-        public Exception Ex
+        public Exception Error
         {
             get
             {
-                return m_ex;
+                return m_error;
             }
         }
 
-        public bool Severe
+        public bool IsSevere
         {
             get
             {

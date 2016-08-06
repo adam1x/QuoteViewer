@@ -5,8 +5,6 @@ namespace WindowsFormsViewer
 {
     public static class Program
     {
-        internal static Manager FormsManager = new Manager();
-
         /// <summary>
         /// The main entry point for the application.
         /// </summary>

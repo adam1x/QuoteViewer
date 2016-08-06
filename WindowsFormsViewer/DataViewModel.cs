@@ -1,22 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Globalization;
-using System.Threading;
 using System.ComponentModel;
-using System.Diagnostics;
 
 using BidMessages;
-using QuoteProviders;
 
 namespace WindowsFormsViewer
 {
-    public class QuoteDataReceiver : INotifyPropertyChanged, IQuoteDataListener
+    public class DataViewModel : INotifyPropertyChanged
     {
         private QuoteMessage m_previousMessage;
-        private IQuoteDataProvider m_provider;
-        private Thread m_providerThread;
-        private AutoResetEvent m_stopSignal;
         private int m_basePrice;
 
         private string m_auctionDateLine1 = "N/A";
@@ -35,34 +27,11 @@ namespace WindowsFormsViewer
         private string m_detailedInformation = "N/A";
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public event EventHandler<ErrorOccurredEventArgs> ErrorOccurred;
 
-        public QuoteDataReceiver()
+        public DataViewModel()
         {
             m_previousMessage = null;
-            m_provider = null;
-            m_providerThread = null;
-            m_stopSignal = new AutoResetEvent(false);
             m_basePrice = -1;
-        }
-
-        /// <summary>
-        /// The listener's name.
-        /// </summary>
-        public string ListenerName
-        {
-            get
-            {
-                return "WinFormsViewer";
-            }
-        }
-
-        internal IQuoteDataProvider Provider
-        {
-            set
-            {
-                m_provider = value;
-            }
         }
 
         internal string AuctionDateLine1
@@ -71,6 +40,7 @@ namespace WindowsFormsViewer
             {
                 return m_auctionDateLine1;
             }
+
             private set
             {
                 if (m_auctionDateLine1 != value)
@@ -87,6 +57,7 @@ namespace WindowsFormsViewer
             {
                 return m_auctionDateLine2;
             }
+
             private set
             {
                 if (m_auctionDateLine2 != value)
@@ -103,6 +74,7 @@ namespace WindowsFormsViewer
             {
                 return m_serverTimeLine1;
             }
+
             private set
             {
                 if (m_serverTimeLine1 != value)
@@ -119,6 +91,7 @@ namespace WindowsFormsViewer
             {
                 return m_serverTimeLine2;
             }
+
             private set
             {
                 if (m_serverTimeLine2 != value)
@@ -135,6 +108,7 @@ namespace WindowsFormsViewer
             {
                 return m_updateTimestampLine1;
             }
+
             private set
             {
                 if (m_updateTimestampLine1 != value)
@@ -151,6 +125,7 @@ namespace WindowsFormsViewer
             {
                 return m_updateTimestampLine2;
             }
+
             private set
             {
                 if (m_updateTimestampLine2 != value)
@@ -167,6 +142,7 @@ namespace WindowsFormsViewer
             {
                 return m_bidPrice;
             }
+
             private set
             {
                 if (m_bidPrice != value)
@@ -183,6 +159,7 @@ namespace WindowsFormsViewer
             {
                 return m_bidQuantity;
             }
+
             private set
             {
                 if (m_bidQuantity != value)
@@ -199,6 +176,7 @@ namespace WindowsFormsViewer
             {
                 return m_priceUpper;
             }
+
             private set
             {
                 if (m_priceUpper != value)
@@ -215,6 +193,7 @@ namespace WindowsFormsViewer
             {
                 return m_priceLower;
             }
+
             private set
             {
                 if (m_priceLower != value)
@@ -231,6 +210,7 @@ namespace WindowsFormsViewer
             {
                 return m_priceIncrease;
             }
+
             private set
             {
                 if (m_priceIncrease != value)
@@ -247,6 +227,7 @@ namespace WindowsFormsViewer
             {
                 return m_bidTime;
             }
+
             private set
             {
                 if (m_bidTime != value)
@@ -263,6 +244,7 @@ namespace WindowsFormsViewer
             {
                 return m_processedCount;
             }
+
             private set
             {
                 if (m_processedCount != value)
@@ -279,6 +261,7 @@ namespace WindowsFormsViewer
             {
                 return m_detailedInformation;
             }
+
             private set
             {
                 if (m_detailedInformation != value)
@@ -289,54 +272,12 @@ namespace WindowsFormsViewer
             }
         }
 
-        internal void Start()
-        {
-            Debug.Assert(m_provider != null);
-            m_provider.Subscribe(this);
-            m_provider.StatusChanged += OnStatusChanged;
-
-            m_providerThread = new Thread(RunProvider);
-            m_providerThread.Start();
-        }
-
-        internal void Stop()
-        {
-            m_provider.Unsubscribe(this);
-            m_stopSignal = new AutoResetEvent(true);
-
-            if (m_providerThread != null)
-            {
-                m_providerThread.Join();
-            }
-        }
-
-        /// <summary>
-        /// Runs a quote data provider.
-        /// </summary>
-        private void RunProvider()
-        {
-            int sleep = 0;
-
-            while (!m_stopSignal.WaitOne(sleep))
-            {
-                sleep = m_provider.Run();
-            }
-        }
         protected void OnPropertyChanged(string name)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
             {
                 handler(this, new PropertyChangedEventArgs(name));
-            }
-        }
-
-        protected virtual void OnErrorOccurred(ErrorOccurredEventArgs e)
-        {
-            EventHandler<ErrorOccurredEventArgs> handler = ErrorOccurred;
-            if (handler != null)
-            {
-                handler(this, e);
             }
         }
 
@@ -440,16 +381,6 @@ namespace WindowsFormsViewer
             }
 
             return result;
-        }
-
-        public void OnStatusChanged(object sender, StatusChangedEventArgs e)
-        {
-            return;
-        }
-
-        public void OnErrorOccurred(Exception ex, bool severe)
-        {
-            OnErrorOccurred(new ErrorOccurredEventArgs(ex, severe));
         }
     }
 }
