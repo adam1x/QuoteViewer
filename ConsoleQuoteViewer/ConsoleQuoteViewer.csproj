@@ -52,7 +52,7 @@
       <Project>{9d9e4960-b784-45a1-a7e3-b5c76708d8a3}</Project>
       <Name>BidMessages</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DataProviders\QuoteProviders.csproj">
+    <ProjectReference Include="..\QuoteProviders\QuoteProviders.csproj">
       <Project>{c8e2e951-d2ed-4ffe-9752-3dfa62c6f086}</Project>
       <Name>QuoteProviders</Name>
     </ProjectReference>

@@ -52,8 +52,8 @@ namespace FormViewer
                 return;
             }
 
-            m_provider.Unsubscribe(this);
             m_provider.Stop();
+            m_provider.Unsubscribe(this);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
