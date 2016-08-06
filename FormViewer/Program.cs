@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace WindowsFormsViewer
+namespace FormViewer
 {
     public static class Program
     {

@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 using QuoteProviders;
 
-namespace WindowsFormsViewer
+namespace FormViewer
 {
     internal class FormsManager
     {

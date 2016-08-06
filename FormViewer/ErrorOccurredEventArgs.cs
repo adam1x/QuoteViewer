@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WindowsFormsViewer
+namespace FormViewer
 {
     public class ErrorOccurredEventArgs
     {

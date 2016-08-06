@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 using QuoteProviders;
 
-namespace ConsoleViewer
+namespace ConsoleQuoteViewer
 {
     /// <summary>
     /// Entry point of this console viewer program.

@@ -1,4 +1,4 @@
-﻿namespace WindowsFormsViewer
+﻿namespace FormViewer
 {
     partial class ServerLoginForm
     {

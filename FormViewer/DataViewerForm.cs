@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using QuoteProviders;
 using BidMessages;
 
-namespace WindowsFormsViewer
+namespace FormViewer
 {
     public partial class DataViewerForm : Form, IQuoteDataListener
     {

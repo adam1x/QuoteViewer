@@ -3,7 +3,7 @@
 using BidMessages;
 using QuoteProviders;
 
-namespace ConsoleViewer
+namespace ConsoleQuoteViewer
 {
     /// <summary>
     /// Models a console application that displays quote data.

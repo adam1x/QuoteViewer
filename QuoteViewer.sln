@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidMessages", "BidMessages\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuoteProviders", "DataProviders\QuoteProviders.csproj", "{C8E2E951-D2ED-4FFE-9752-3DFA62C6F086}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleViewer", "ConsoleViewer\ConsoleViewer.csproj", "{D9CA1789-5255-4FF6-BF50-68EFB6D96ED5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleQuoteViewer", "ConsoleQuoteViewer\ConsoleQuoteViewer.csproj", "{D9CA1789-5255-4FF6-BF50-68EFB6D96ED5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsViewer", "WindowsFormsViewer\WindowsFormsViewer.csproj", "{C77402AD-5E0A-4A0C-9BEA-7DEB8AAF1FD3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormViewer", "FormViewer\FormViewer.csproj", "{C77402AD-5E0A-4A0C-9BEA-7DEB8AAF1FD3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

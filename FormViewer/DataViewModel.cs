@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 using BidMessages;
 
-namespace WindowsFormsViewer
+namespace FormViewer
 {
     public class DataViewModel : INotifyPropertyChanged
     {
